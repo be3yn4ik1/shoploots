@@ -1,0 +1,169 @@
+[
+    {
+        "key": "group_marketplace_arbitration",
+        "title": "Арбитраж и Логи",
+        "fields": [
+            {"key":"field_arb_reason","label":"Причина спора","name":"arb_reason","type":"textarea","required":false,"conditional_logic":false,"wrapper":{"width":"","class":"","id":""},"default_value":"","new_lines":"","maxlength":"","placeholder":"","rows":""},
+            {"key":"field_arb_decision","label":"Вердикт админа","name":"arb_decision","type":"select","required":false,"conditional_logic":[[{"field":"field_ord_status","operator":"==","value":"arbitration"}]],"wrapper":{"width":"","class":"","id":""},"choices":{"none":"На рассмотрении","refund_buyer":"Возврат покупателю","release_seller":"Выплата продавцу"},"multiple":0,"allow_null":0,"default_value":"none","return_format":"value"},
+            {"key":"field_arb_opened_at","label":"Дата открытия арбитража","name":"arb_opened_at","type":"date_time_picker","required":0,"conditional_logic":0,"wrapper":{"width":"50","class":"","id":""},"display_format":"d.m.Y H:i","return_format":"Y-m-d H:i:s","first_day":1},
+            {"key":"field_arb_admin_note","label":"Заметка администратора","name":"arb_admin_note","type":"textarea","required":0,"conditional_logic":[[{"field":"field_ord_status","operator":"==","value":"arbitration"}]],"wrapper":{"width":"","class":"","id":""},"rows":4,"default_value":"","placeholder":"Внутренние заметки по арбитражу..."}
+        ],
+        "location":[[{"param":"post_type","operator":"==","value":"orders"}]],
+        "menu_order":0,"position":"normal","style":"default","label_placement":"top","instruction_placement":"label","hide_on_screen":[],"active":true,"description":"","show_in_rest":false
+    },
+    {
+        "key": "group_marketplace_users",
+        "title": "Данные пользователя",
+        "fields": [
+            {"key":"field_usr_role","label":"Роль","name":"marketplace_role","type":"select","required":0,"conditional_logic":0,"wrapper":{"width":"25","class":"","id":""},"choices":{"admin":"Администратор","buyer":"Покупатель","seller":"Продавец"},"default_value":"buyer","return_format":"value","multiple":0,"allow_null":0},
+            {"key":"field_usr_avatar","label":"Аватар","name":"user_avatar","type":"image","required":false,"conditional_logic":false,"wrapper":{"width":"25","class":"","id":""},"return_format":"id","preview_size":"medium","library":"all","min_width":0,"min_height":0,"min_size":0,"max_width":0,"max_height":0,"max_size":0,"mime_types":""},
+            {"key":"field_usr_ref_code","label":"Реферальный промокод (Invite)","name":"ref_code","type":"text","required":false,"conditional_logic":false,"wrapper":{"width":"25","class":"","id":""},"maxlength":10,"default_value":"","placeholder":"","prepend":"","append":""},
+            {"key":"field_usr_balance","label":"Основной баланс (₽)","name":"balance","type":"number","required":false,"conditional_logic":false,"wrapper":{"width":"25","class":"","id":""},"default_value":0,"min":0,"max":"","step":"0.01","placeholder":"","prepend":"","append":""},
+            {"key":"field_usr_hold","label":"Hold-баланс (₽)","name":"hold_balance","type":"number","required":false,"conditional_logic":false,"wrapper":{"width":"25","class":"","id":""},"default_value":0,"min":0,"max":"","step":"0.01","placeholder":"","prepend":"","append":""},
+            {"key":"field_usr_referred_by","label":"Пригласил (ID пользователя)","name":"referred_by_id","type":"user","required":0,"conditional_logic":0,"wrapper":{"width":"25","class":"","id":""},"role":"","return_format":"id","multiple":0,"allow_null":1},
+            {"key":"field_usr_withdrawal_card","label":"Реквизиты для вывода","name":"withdrawal_card","type":"text","required":0,"conditional_logic":0,"wrapper":{"width":"50","class":"","id":""},"maxlength":"","default_value":"","placeholder":"Номер карты или кошелька","prepend":"","append":""},
+            {"key":"field_usr_telegram","label":"Telegram","name":"telegram","type":"text","required":0,"conditional_logic":0,"wrapper":{"width":"25","class":"","id":""},"maxlength":"","default_value":"","placeholder":"@username","prepend":"","append":""},
+            {"key":"field_usr_is_banned","label":"Аккаунт заблокирован","name":"is_banned","type":"true_false","required":0,"conditional_logic":0,"wrapper":{"width":"25","class":"","id":""},"message":"Заблокировать пользователя","default_value":0,"ui":1,"ui_on_text":"Да","ui_off_text":"Нет"},
+            {"key":"field_usr_ban_reason","label":"Причина блокировки","name":"ban_reason","type":"text","required":0,"conditional_logic":[[{"field":"field_usr_is_banned","operator":"==","value":"1"}]],"wrapper":{"width":"75","class":"","id":""},"maxlength":"","default_value":"","placeholder":"Причина блокировки...","prepend":"","append":""}
+        ],
+        "location":[[{"param":"user_form","operator":"==","value":"all"}]],
+        "menu_order":0,"position":"normal","style":"default","label_placement":"top","instruction_placement":"label","hide_on_screen":"","active":true,"description":"","show_in_rest":0
+    },
+    {
+        "key": "group_marketplace_orders",
+        "title": "Детали сделки",
+        "fields": [
+            {"key":"field_ord_offer","label":"Объявление","name":"offer_id","type":"post_object","required":0,"conditional_logic":0,"wrapper":{"width":"50","class":"","id":""},"post_type":["products"],"post_status":"","taxonomy":"","return_format":"id","multiple":0,"allow_null":0,"ui":1},
+            {"key":"field_ord_buyer","label":"Покупатель","name":"buyer_id","type":"user","required":0,"conditional_logic":0,"wrapper":{"width":"25","class":"","id":""},"role":["buyer"],"return_format":"id","multiple":0,"allow_null":0},
+            {"key":"field_ord_seller","label":"Продавец","name":"seller_id","type":"user","required":0,"conditional_logic":0,"wrapper":{"width":"25","class":"","id":""},"role":["seller"],"return_format":"id","multiple":0,"allow_null":0},
+            {"key":"field_ord_status","label":"Статус заказа","name":"order_status","type":"select","required":0,"conditional_logic":0,"wrapper":{"width":"25","class":"","id":""},"choices":{"created":"Создан","paid":"Оплачен","in_progress":"В процессе","completed":"Завершен","arbitration":"Арбитраж","canceled":"Отменен"},"default_value":false,"return_format":"value","multiple":0,"allow_null":0},
+            {"key":"field_ord_amount","label":"Сумма сделки (₽)","name":"order_amount","type":"number","required":0,"conditional_logic":0,"wrapper":{"width":"25","class":"","id":""},"default_value":"","min":0,"max":"","step":"0.01","placeholder":"","prepend":"","append":""},
+            {"key":"field_ord_commission","label":"Комиссия системы (₽)","name":"commission_taken","type":"number","required":0,"conditional_logic":0,"wrapper":{"width":"25","class":"","id":""},"default_value":"","min":0,"step":"0.01","placeholder":""},
+            {"key":"field_ord_delivery_type","label":"Тип выдачи","name":"order_delivery_type","type":"select","required":0,"conditional_logic":0,"wrapper":{"width":"25","class":"","id":""},"choices":{"auto":"Автовыдача","manual":"Ручная"},"default_value":false,"return_format":"value","multiple":0,"allow_null":1},
+            {"key":"field_ord_delivered","label":"Выданные данные (ключ)","name":"delivered_data","type":"textarea","required":0,"conditional_logic":[[{"field":"field_ord_delivery_type","operator":"==","value":"auto"}]],"wrapper":{"width":"","class":"","id":""},"rows":3,"default_value":"","placeholder":""},
+            {"key":"field_ord_tx","label":"ID транзакции пополнения","name":"payment_transaction_id","type":"text","required":0,"conditional_logic":0,"wrapper":{"width":"50","class":"","id":""},"maxlength":"","default_value":"","placeholder":""},
+            {"key":"field_69ef9b3b2a6c5","label":"Отзыв","name":"otzyv","type":"group","required":0,"conditional_logic":0,"wrapper":{"width":"","class":"","id":""},"layout":"block","sub_fields":[
+                {"key":"field_69ef9b492a6c6","label":"Текст отзыва от клиента","name":"tekst_otzyva","type":"text","required":0,"conditional_logic":0,"wrapper":{"width":"50","class":"","id":""},"default_value":"","maxlength":"","placeholder":""},
+                {"key":"field_69ef9b652a6c7","label":"Оценка (1-5)","name":"oczenka","type":"number","required":0,"conditional_logic":0,"wrapper":{"width":"25","class":"","id":""},"default_value":"","min":1,"max":5,"step":1,"placeholder":""},
+                {"key":"field_review_date","label":"Дата отзыва","name":"review_date","type":"date_time_picker","required":0,"conditional_logic":0,"wrapper":{"width":"25","class":"","id":""},"display_format":"d.m.Y H:i","return_format":"Y-m-d H:i:s","first_day":1}
+            ]}
+        ],
+        "location":[[{"param":"post_type","operator":"==","value":"orders"}]],
+        "menu_order":0,"position":"normal","style":"default","label_placement":"top","instruction_placement":"label","hide_on_screen":"","active":true,"description":"","show_in_rest":0
+    },
+    {
+        "key": "group_marketplace_offers",
+        "title": "Настройки объявления",
+        "fields": [
+            {"key":"field_off_seller","label":"Продавец","name":"product_seller_id","type":"user","required":0,"conditional_logic":0,"wrapper":{"width":"30","class":"","id":""},"role":["seller"],"return_format":"id","multiple":0,"allow_null":1},
+            {"key":"field_off_type","label":"Тип выдачи","name":"delivery_type","type":"select","required":0,"conditional_logic":0,"wrapper":{"width":"20","class":"","id":""},"choices":{"manual":"Ручная","auto":"Автовыдача"},"default_value":false,"return_format":"value","multiple":0,"allow_null":0},
+            {"key":"field_off_price","label":"Цена обычная (₽)","name":"price","type":"number","required":0,"conditional_logic":0,"wrapper":{"width":"20","class":"","id":""},"default_value":"","min":0,"max":"","step":"0.01","placeholder":""},
+            {"key":"field_69ef96995b0f3","label":"Цена по акции (₽)","name":"price_sell","type":"number","required":0,"conditional_logic":0,"wrapper":{"width":"20","class":"","id":""},"default_value":"","min":0,"max":"","step":"0.01","placeholder":""},
+            {"key":"field_off_is_active","label":"Товар активен","name":"is_active","type":"true_false","required":0,"conditional_logic":0,"wrapper":{"width":"10","class":"","id":""},"message":"","default_value":1,"ui":1,"ui_on_text":"Да","ui_off_text":"Нет"},
+            {"key":"field_off_secret","label":"Скрытые данные (Ключи — каждый с новой строки)","name":"secret_data","type":"textarea","required":0,"conditional_logic":[[{"field":"field_off_type","operator":"==","value":"auto"}]],"wrapper":{"width":"","class":"","id":""},"default_value":"","maxlength":"","rows":8,"placeholder":"key1\nkey2\nkey3"},
+            {"key":"field_69ef96402858f","label":"Способ получения","name":"sposob_polucheniya","type":"textarea","required":0,"conditional_logic":0,"wrapper":{"width":"","class":"","id":""},"default_value":"","maxlength":"","rows":3,"placeholder":"","new_lines":"br"},
+            {"key":"field_69ef975a5ea52","label":"Описание","name":"opisanie","type":"textarea","required":0,"conditional_logic":0,"wrapper":{"width":"","class":"","id":""},"default_value":"","maxlength":"","rows":5,"placeholder":""},
+            {"key":"field_off_total_sales","label":"Всего продаж (авто)","name":"total_sales_count","type":"number","required":0,"conditional_logic":0,"wrapper":{"width":"50","class":"","id":""},"default_value":0,"min":0,"step":1,"placeholder":"","instructions":"Обновляется автоматически при каждой продаже"}
+        ],
+        "location":[[{"param":"post_type","operator":"==","value":"products"}]],
+        "menu_order":0,"position":"normal","style":"default","label_placement":"top","instruction_placement":"label","hide_on_screen":"","active":true,"description":"","show_in_rest":0
+    },
+    {
+        "key": "group_marketplace_options",
+        "title": "Настройки системы (Admin)",
+        "fields": [
+            {"key":"field_opt_tabs","label":"Основные","name":"","type":"tab","required":0,"conditional_logic":false,"wrapper":{"width":"","class":"","id":""},"placement":"top","endpoint":0},
+            {"key":"field_opt_commission","label":"Комиссия системы (%)","name":"system_commission","type":"number","required":false,"conditional_logic":false,"wrapper":{"width":"20","class":"","id":""},"default_value":10,"min":0,"max":50,"step":"0.1","placeholder":"","instructions":"Процент от суммы сделки, удерживаемый системой"},
+            {"key":"field_opt_min_deposit","label":"Минимальное пополнение (₽)","name":"min_deposit","type":"number","required":false,"conditional_logic":false,"wrapper":{"width":"20","class":"","id":""},"default_value":50,"min":0,"step":1,"placeholder":""},
+            {"key":"field_opt_min_withdrawal","label":"Минимальный вывод (₽)","name":"min_withdrawal","type":"number","required":false,"conditional_logic":false,"wrapper":{"width":"20","class":"","id":""},"default_value":100,"min":0,"step":1,"placeholder":""},
+            {"key":"field_opt_max_withdrawal","label":"Максимальный вывод (₽)","name":"max_withdrawal","type":"number","required":false,"conditional_logic":false,"wrapper":{"width":"20","class":"","id":""},"default_value":50000,"min":0,"step":1,"placeholder":""},
+            {"key":"field_opt_hold_hours","label":"Hold вывода (часов)","name":"hold_hours","type":"number","required":false,"conditional_logic":false,"wrapper":{"width":"20","class":"","id":""},"default_value":48,"min":0,"step":1,"placeholder":""},
+            {"key":"field_opt_reg_bonus","label":"Бонус при регистрации (₽)","name":"registration_bonus","type":"number","required":false,"conditional_logic":false,"wrapper":{"width":"20","class":"","id":""},"default_value":0,"min":0,"step":"0.01","placeholder":"","instructions":"0 = бонус отключён"},
+            {"key":"field_opt_invite_required","label":"Инвайт-код обязателен","name":"invite_required","type":"true_false","required":false,"conditional_logic":false,"wrapper":{"width":"20","class":"","id":""},"message":"Требовать инвайт-код при регистрации","default_value":1,"ui":1,"ui_on_text":"Да","ui_off_text":"Нет"},
+            {"key":"field_opt_site_email","label":"Email уведомлений","name":"site_email","type":"email","required":false,"conditional_logic":false,"wrapper":{"width":"40","class":"","id":""},"default_value":"","placeholder":"admin@example.com"},
+            {"key":"field_opt_ref_tab","label":"Реферальная система","name":"","type":"tab","required":0,"conditional_logic":false,"wrapper":{"width":"","class":"","id":""},"placement":"top","endpoint":0},
+            {"key":"field_ref_l1","label":"Уровень 1 (%)","name":"ref_l1","type":"number","required":false,"conditional_logic":false,"wrapper":{"width":"16","class":"","id":""},"default_value":5,"min":0,"max":100,"step":"0.1","instructions":"% от суммы сделки для 1-го рефера"},
+            {"key":"field_ref_l2","label":"Уровень 2 (%)","name":"ref_l2","type":"number","required":false,"conditional_logic":false,"wrapper":{"width":"16","class":"","id":""},"default_value":1,"min":0,"max":100,"step":"0.1"},
+            {"key":"field_ref_l3","label":"Уровень 3 (%)","name":"ref_l3","type":"number","required":false,"conditional_logic":false,"wrapper":{"width":"16","class":"","id":""},"default_value":1,"min":0,"max":100,"step":"0.1"},
+            {"key":"field_ref_l4","label":"Уровень 4 (%)","name":"ref_l4","type":"number","required":false,"conditional_logic":false,"wrapper":{"width":"16","class":"","id":""},"default_value":1,"min":0,"max":100,"step":"0.1"},
+            {"key":"field_ref_l5","label":"Уровень 5 (%)","name":"ref_l5","type":"number","required":false,"conditional_logic":false,"wrapper":{"width":"16","class":"","id":""},"default_value":0.5,"min":0,"max":100,"step":"0.1"},
+            {"key":"field_ref_l6","label":"Уровень 6 (%)","name":"ref_l6","type":"number","required":false,"conditional_logic":false,"wrapper":{"width":"16","class":"","id":""},"default_value":0.5,"min":0,"max":100,"step":"0.1"},
+            {"key":"field_opt_api_tab","label":"API и Шлюзы","name":"","type":"tab","required":0,"conditional_logic":false,"wrapper":{"width":"","class":"","id":""},"placement":"top","endpoint":0},
+            {"key":"field_opt_fk_merchant","label":"FK Merchant ID","name":"fk_merchant_id","type":"text","required":false,"conditional_logic":false,"wrapper":{"width":"25","class":"","id":""},"default_value":"","maxlength":"","placeholder":""},
+            {"key":"field_opt_fk_secret1","label":"FK Secret Word 1","name":"fk_secret_word","type":"password","required":false,"conditional_logic":false,"wrapper":{"width":"25","class":"","id":""},"default_value":"","placeholder":""},
+            {"key":"field_opt_fk_secret2","label":"FK Secret Word 2","name":"fk_secret_word2","type":"password","required":false,"conditional_logic":false,"wrapper":{"width":"25","class":"","id":""},"default_value":"","placeholder":""},
+            {"key":"field_opt_fk_api","label":"FK API Key","name":"fk_api_key","type":"password","required":false,"conditional_logic":false,"wrapper":{"width":"25","class":"","id":""},"default_value":"","placeholder":""},
+            {"key":"field_opt_recaptcha_site","label":"reCAPTCHA v2 Site Key","name":"recaptcha_site_key","type":"text","required":false,"conditional_logic":false,"wrapper":{"width":"50","class":"","id":""},"default_value":"","placeholder":"6LeXXXXXXXXXXXXXXXXXX"},
+            {"key":"field_opt_recaptcha_secret","label":"reCAPTCHA v2 Secret Key","name":"recaptcha_secret_key","type":"password","required":false,"conditional_logic":false,"wrapper":{"width":"50","class":"","id":""},"default_value":"","placeholder":""}
+        ],
+        "location":[[{"param":"options_page","operator":"==","value":"options-system"}]],
+        "menu_order":0,"position":"normal","style":"default","label_placement":"top","instruction_placement":"label","hide_on_screen":"","active":true,"description":"","show_in_rest":0
+    },
+    {
+        "key": "group_marketplace_payouts",
+        "title": "Управление выплатами",
+        "fields": [
+            {"key":"field_pay_user","label":"Пользователь","name":"payout_user","type":"user","required":0,"conditional_logic":0,"wrapper":{"width":"25","class":"","id":""},"role":"","return_format":"id","multiple":0,"allow_null":1},
+            {"key":"field_pay_amount","label":"Сумма к выводу (₽)","name":"payout_amount","type":"number","required":0,"conditional_logic":0,"wrapper":{"width":"25","class":"","id":""},"default_value":"","min":0,"step":"0.01","placeholder":""},
+            {"key":"field_pay_method","label":"Реквизиты карты/кошелька","name":"payout_method","type":"text","required":0,"conditional_logic":0,"wrapper":{"width":"25","class":"","id":""},"default_value":"","maxlength":"","placeholder":""},
+            {"key":"field_pay_status","label":"Статус выплаты","name":"payout_status","type":"select","required":0,"conditional_logic":0,"wrapper":{"width":"25","class":"","id":""},"choices":{"pending":"В ожидании (Hold 48h)","processing":"В обработке","completed":"Выплачено","rejected":"Отклонено"},"default_value":false,"return_format":"value","multiple":0,"allow_null":0},
+            {"key":"field_pay_available_at","label":"Доступно для выплаты с","name":"payout_available_at","type":"date_time_picker","required":0,"conditional_logic":0,"wrapper":{"width":"50","class":"","id":""},"display_format":"d.m.Y H:i","return_format":"Y-m-d H:i:s","first_day":1,"instructions":"Устанавливается автоматически (текущее время + hold-период)"},
+            {"key":"field_pay_reject_reason","label":"Причина отклонения","name":"payout_reject_reason","type":"text","required":0,"conditional_logic":[[{"field":"field_pay_status","operator":"==","value":"rejected"}]],"wrapper":{"width":"50","class":"","id":""},"default_value":"","placeholder":"Укажите причину..."}
+        ],
+        "location":[[{"param":"post_type","operator":"==","value":"payout"}]],
+        "menu_order":0,"position":"normal","style":"default","label_placement":"top","instruction_placement":"label","hide_on_screen":"","active":true,"description":"","show_in_rest":0
+    },
+    {
+        "key": "taxonomy_69ef94f2143f4",
+        "title": "Игры / Категории",
+        "menu_order":0,"active":true,"taxonomy":"group","object_type":["products"],"advanced_configuration":1,
+        "labels":{"name":"Игры / Категории","singular_name":"Игра / Категория","menu_name":"Игра / Категория","all_items":"Все категории","add_new_item":"Добавить категорию","search_items":"Поиск категорий","not_found":"Категорий не найдено"},
+        "public":1,"publicly_queryable":1,"hierarchical":1,"show_ui":1,"show_in_menu":1,"show_in_nav_menus":1,"show_in_rest":1,"show_tagcloud":1,"show_in_quick_edit":1,"show_admin_column":1,
+        "rewrite":{"permalink_rewrite":"taxonomy_key","with_front":"1","rewrite_hierarchical":"1"},"sort":1
+    },
+    {
+        "key": "taxonomy_69ef9cf01330f",
+        "title": "Типы Товаров / Услуг",
+        "menu_order":0,"active":true,"taxonomy":"type-group","object_type":["products"],"advanced_configuration":1,
+        "labels":{"name":"Типы Товаров / Услуг","singular_name":"Тип Товара / Услуги","menu_name":"Тип товара","all_items":"Все типы","add_new_item":"Добавить тип","search_items":"Поиск типов","not_found":"Типов не найдено"},
+        "public":1,"publicly_queryable":1,"hierarchical":1,"show_ui":1,"show_in_menu":1,"show_in_nav_menus":1,"show_in_rest":1,"show_tagcloud":1,"show_in_quick_edit":1,"show_admin_column":1,
+        "rewrite":{"permalink_rewrite":"taxonomy_key","with_front":"1","rewrite_hierarchical":"1"},"sort":1
+    },
+    {
+        "key": "post_type_69ef8dd2b8ac7",
+        "title": "Заказы","menu_order":0,"active":true,"post_type":"orders","advanced_configuration":true,
+        "labels":{"name":"Заказы","singular_name":"Заказ","menu_name":"Заказы","all_items":"Все заказы","add_new_item":"Добавить заказ","search_items":"Поиск заказов","not_found":"Заказов не найдено"},
+        "public":true,"hierarchical":false,"exclude_from_search":true,"publicly_queryable":true,"show_ui":true,"show_in_menu":true,"show_in_admin_bar":true,"show_in_nav_menus":true,"show_in_rest":true,
+        "menu_icon":{"type":"dashicons","value":"dashicons-money-alt"},
+        "supports":["title","custom-fields"],"has_archive":true,
+        "rewrite":{"permalink_rewrite":"post_type_key","with_front":"1","feeds":"0","pages":"1"},
+        "can_export":true,"delete_with_user":false
+    },
+    {
+        "key": "post_type_69ef8e5cac439",
+        "title": "Товары","menu_order":0,"active":true,"post_type":"products","advanced_configuration":true,
+        "labels":{"name":"Товары","singular_name":"Товар","menu_name":"Товары","all_items":"Все товары","add_new_item":"Добавить товар","search_items":"Поиск товаров","not_found":"Товаров не найдено"},
+        "public":true,"hierarchical":false,"exclude_from_search":false,"publicly_queryable":true,"show_ui":true,"show_in_menu":true,"show_in_admin_bar":true,"show_in_nav_menus":true,"show_in_rest":true,
+        "menu_icon":{"type":"dashicons","value":"dashicons-superhero-alt"},
+        "supports":["title","thumbnail","custom-fields"],"has_archive":true,
+        "rewrite":{"permalink_rewrite":"post_type_key","with_front":"1","feeds":"0","pages":"1"},
+        "can_export":true,"delete_with_user":false
+    },
+    {
+        "key": "post_type_69ef8ff610e50",
+        "title": "Выплаты","menu_order":0,"active":true,"post_type":"payout","advanced_configuration":true,
+        "labels":{"name":"Управление выплатами","singular_name":"Выплата","menu_name":"Выплаты","all_items":"Все выплаты","add_new_item":"Добавить выплату","search_items":"Поиск выплат","not_found":"Выплат не найдено"},
+        "public":false,"hierarchical":false,"exclude_from_search":true,"publicly_queryable":false,"show_ui":true,"show_in_menu":true,"show_in_admin_bar":true,"show_in_nav_menus":false,"show_in_rest":false,
+        "menu_icon":{"type":"dashicons","value":"dashicons-money"},
+        "supports":["title","custom-fields"],"has_archive":false,
+        "rewrite":{"permalink_rewrite":"post_type_key","with_front":"1","feeds":"0","pages":"0"},
+        "can_export":true,"delete_with_user":false
+    },
+    {
+        "key": "ui_options_page_69ed26e0061a7",
+        "title": "Настройки системы","active":true,"menu_order":0,
+        "page_title": "Настройки маркетплейса","menu_slug":"options-system","parent_slug":"none","advanced_configuration":1,
+        "menu_icon":{"type":"dashicons","value":"dashicons-admin-settings"},
+        "update_button":"Сохранить","updated_message":"Настройки сохранены","capability":"manage_options","data_storage":"options","redirect":0
+    }
+]

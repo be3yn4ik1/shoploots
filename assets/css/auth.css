@@ -1,0 +1,19 @@
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:var(--bg)}
+.auth-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:32px;width:100%;max-width:420px;box-shadow:var(--shadow-md)}
+.auth-logo{text-align:center;margin-bottom:24px}
+.auth-logo img{max-height:40px;margin:0 auto}
+.auth-logo-text{font-size:1.5rem;font-weight:700;color:var(--primary)}
+.auth-tabs{display:flex;background:#f0f2f5;border-radius:var(--radius-sm);padding:4px;margin-bottom:24px}
+.auth-tab{flex:1;background:none;border:none;font-family:inherit;font-size:.875rem;font-weight:600;padding:8px 12px;border-radius:8px;cursor:pointer;color:var(--text-secondary);transition:background .2s,color .2s}
+.auth-tab.active{background:var(--white);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.auth-form{display:none}.auth-form.active{display:block}
+.role-switcher{display:flex;gap:8px}
+.role-option{flex:1}
+.role-option input[type=radio]{display:none}
+.role-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;border-radius:var(--radius-sm);border:2px solid var(--border);background:#fff;cursor:pointer;font-size:.82rem;font-weight:600;color:var(--text-secondary);transition:all .2s;text-align:center}
+.role-option input:checked + .role-btn{border-color:var(--primary);background:#f0f7ff;color:var(--primary)}
+.invite-wrap{position:relative;display:flex;gap:8px}
+.invite-wrap input{text-transform:uppercase;letter-spacing:.08em}
+.invite-status{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:.75rem;font-weight:600;pointer-events:none}
+.invite-status.valid{color:var(--green)}
+.invite-status.invalid{color:var(--red)}

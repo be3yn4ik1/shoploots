@@ -1,0 +1,20 @@
+.dash-main{min-width:0}
+.orders-empty{text-align:center;padding:40px;color:var(--text-secondary);font-size:.9rem}
+.product-status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px}
+.product-status-dot.publish{background:var(--green)}
+.product-status-dot.draft{background:var(--text-secondary)}
+.product-keys-count{font-size:.78rem;color:var(--text-secondary)}
+.product-keys-count strong{color:var(--text)}
+.toggle-switch{position:relative;display:inline-block;width:40px;height:22px}
+.toggle-switch input{display:none}
+.toggle-slider{position:absolute;inset:0;background:#ccc;border-radius:22px;cursor:pointer;transition:.2s}
+.toggle-slider:before{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.toggle-switch input:checked + .toggle-slider{background:var(--primary)}
+.toggle-switch input:checked + .toggle-slider:before{transform:translateX(18px)}
+.seller-buyers-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.buyer-entry{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#fafbfc;border-radius:8px;border:1px solid var(--border)}
+.buyer-entry-left{display:flex;align-items:center;gap:10px}
+.buyer-entry-left img{width:36px;height:36px;border-radius:50%;object-fit:cover}
+.buyer-entry-name{font-weight:600;font-size:.875rem}
+.buyer-entry-date{font-size:.75rem;color:var(--text-secondary)}
+.buyer-entry-amount{font-weight:700;color:var(--primary)}

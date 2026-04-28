@@ -1,0 +1,1423 @@
+[
+    {
+        "key": "group_marketplace_arbitration",
+        "title": "Арбитраж и Логи",
+        "fields": [
+            {
+                "key": "field_arb_reason",
+                "label": "Причина спора",
+                "name": "arb_reason",
+                "aria-label": "",
+                "type": "textarea",
+                "instructions": "",
+                "required": false,
+                "conditional_logic": false,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "default_value": "",
+                "new_lines": "",
+                "maxlength": "",
+                "placeholder": "",
+                "rows": ""
+            },
+            {
+                "key": "field_arb_decision",
+                "label": "Вердикт админа",
+                "name": "arb_decision",
+                "aria-label": "",
+                "type": "select",
+                "instructions": "",
+                "required": false,
+                "conditional_logic": [
+                    [
+                        {
+                            "field": "field_ord_status",
+                            "operator": "==",
+                            "value": "arbitration"
+                        }
+                    ]
+                ],
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "choices": {
+                    "none": "На рассмотрении",
+                    "refund_buyer": "Возврат покупателю",
+                    "release_seller": "Выплата продавцу"
+                },
+                "multiple": 0,
+                "allow_null": 0,
+                "default_value": false,
+                "ui": 0,
+                "ajax": 0,
+                "placeholder": "",
+                "return_format": "value",
+                "create_options": 0,
+                "save_options": 0
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "orders"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": [],
+        "active": true,
+        "description": "",
+        "show_in_rest": false
+    },
+    {
+        "key": "group_marketplace_users",
+        "title": "Данные пользователя",
+        "fields": [
+            {
+                "key": "field_usr_role",
+                "label": "Роль",
+                "name": "marketplace_role",
+                "aria-label": "",
+                "type": "select",
+                "instructions": "",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "choices": {
+                    "admin": "Администратор",
+                    "buyer": "Покупатель",
+                    "seller": "Продавец"
+                },
+                "default_value": "buyer",
+                "return_format": "value",
+                "multiple": 0,
+                "allow_null": 0,
+                "allow_in_bindings": 1,
+                "ui": 0,
+                "ajax": 0,
+                "placeholder": "",
+                "create_options": 0,
+                "save_options": 0
+            },
+            {
+                "key": "field_usr_avatar",
+                "label": "Аватар",
+                "name": "user_avatar",
+                "aria-label": "",
+                "type": "image",
+                "instructions": "",
+                "required": false,
+                "conditional_logic": false,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "return_format": "id",
+                "preview_size": "medium",
+                "library": "all",
+                "min_width": 0,
+                "min_height": 0,
+                "min_size": 0,
+                "max_width": 0,
+                "max_height": 0,
+                "max_size": 0,
+                "mime_types": ""
+            },
+            {
+                "key": "field_usr_ref_code",
+                "label": "Реферальный промокод (Invite)",
+                "name": "ref_code",
+                "aria-label": "",
+                "type": "text",
+                "instructions": "",
+                "required": false,
+                "conditional_logic": false,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "maxlength": 10,
+                "default_value": "",
+                "placeholder": "",
+                "prepend": "",
+                "append": ""
+            },
+            {
+                "key": "field_usr_balance",
+                "label": "Основной баланс",
+                "name": "balance",
+                "aria-label": "",
+                "type": "number",
+                "instructions": "",
+                "required": false,
+                "conditional_logic": false,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "default_value": 0,
+                "min": "",
+                "max": "",
+                "step": "",
+                "placeholder": "",
+                "prepend": "",
+                "append": ""
+            },
+            {
+                "key": "field_usr_hold",
+                "label": "Hold-баланс",
+                "name": "hold_balance",
+                "aria-label": "",
+                "type": "number",
+                "instructions": "",
+                "required": false,
+                "conditional_logic": false,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "default_value": 0,
+                "min": "",
+                "max": "",
+                "step": "",
+                "placeholder": "",
+                "prepend": "",
+                "append": ""
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "user_form",
+                    "operator": "==",
+                    "value": "all"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": "",
+        "active": true,
+        "description": "",
+        "show_in_rest": 0
+    },
+    {
+        "key": "group_marketplace_orders",
+        "title": "Детали сделки",
+        "fields": [
+            {
+                "key": "field_ord_offer",
+                "label": "Объявление",
+                "name": "offer_id",
+                "aria-label": "",
+                "type": "post_object",
+                "instructions": "",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "post_type": [
+                    "products"
+                ],
+                "post_status": "",
+                "taxonomy": "",
+                "return_format": "id",
+                "multiple": 0,
+                "allow_null": 0,
+                "allow_in_bindings": 1,
+                "bidirectional": 0,
+                "ui": 1,
+                "bidirectional_target": []
+            },
+            {
+                "key": "field_ord_buyer",
+                "label": "Покупатель",
+                "name": "buyer_id",
+                "aria-label": "",
+                "type": "user",
+                "instructions": "",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "25",
+                    "class": "",
+                    "id": ""
+                },
+                "role": [
+                    "buyer"
+                ],
+                "return_format": "id",
+                "multiple": 0,
+                "allow_null": 0,
+                "allow_in_bindings": 1,
+                "bidirectional": 0,
+                "bidirectional_target": []
+            },
+            {
+                "key": "field_ord_seller",
+                "label": "Продавец",
+                "name": "seller_id",
+                "aria-label": "",
+                "type": "user",
+                "instructions": "",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "25",
+                    "class": "",
+                    "id": ""
+                },
+                "role": [
+                    "seller"
+                ],
+                "return_format": "id",
+                "multiple": 0,
+                "allow_null": 0,
+                "allow_in_bindings": 1,
+                "bidirectional": 0,
+                "bidirectional_target": []
+            },
+            {
+                "key": "field_ord_status",
+                "label": "Статус заказа",
+                "name": "order_status",
+                "aria-label": "",
+                "type": "select",
+                "instructions": "",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "25",
+                    "class": "",
+                    "id": ""
+                },
+                "choices": {
+                    "created": "Создан",
+                    "paid": "Оплачен",
+                    "in_progress": "В процессе",
+                    "completed": "Завершен",
+                    "arbitration": "Арбитраж",
+                    "canceled": "Отменен"
+                },
+                "default_value": false,
+                "return_format": "value",
+                "multiple": 0,
+                "allow_null": 0,
+                "allow_in_bindings": 1,
+                "ui": 0,
+                "ajax": 0,
+                "placeholder": "",
+                "create_options": 0,
+                "save_options": 0
+            },
+            {
+                "key": "field_ord_amount",
+                "label": "Сумма сделки",
+                "name": "order_amount",
+                "aria-label": "",
+                "type": "number",
+                "instructions": "",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "25",
+                    "class": "",
+                    "id": ""
+                },
+                "default_value": "",
+                "min": "",
+                "max": "",
+                "allow_in_bindings": 1,
+                "placeholder": "",
+                "step": "",
+                "prepend": "",
+                "append": ""
+            },
+            {
+                "key": "field_69ef9b3b2a6c5",
+                "label": "Отзыв",
+                "name": "otzyv",
+                "aria-label": "",
+                "type": "group",
+                "instructions": "",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "layout": "block",
+                "sub_fields": [
+                    {
+                        "key": "field_69ef9b492a6c6",
+                        "label": "Текст отзыва от клиента",
+                        "name": "tekst_otzyva",
+                        "aria-label": "",
+                        "type": "text",
+                        "instructions": "",
+                        "required": 0,
+                        "conditional_logic": 0,
+                        "wrapper": {
+                            "width": "33",
+                            "class": "",
+                            "id": ""
+                        },
+                        "default_value": "",
+                        "maxlength": "",
+                        "allow_in_bindings": 0,
+                        "placeholder": "",
+                        "prepend": "",
+                        "append": ""
+                    },
+                    {
+                        "key": "field_69ef9b652a6c7",
+                        "label": "Оценка",
+                        "name": "oczenka",
+                        "aria-label": "",
+                        "type": "number",
+                        "instructions": "",
+                        "required": 0,
+                        "conditional_logic": 0,
+                        "wrapper": {
+                            "width": "33",
+                            "class": "",
+                            "id": ""
+                        },
+                        "default_value": "",
+                        "min": "",
+                        "max": "",
+                        "allow_in_bindings": 0,
+                        "placeholder": "",
+                        "step": "",
+                        "prepend": "",
+                        "append": ""
+                    }
+                ]
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "orders"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": "",
+        "active": true,
+        "description": "",
+        "show_in_rest": 0
+    },
+    {
+        "key": "group_marketplace_offers",
+        "title": "Настройки объявления",
+        "fields": [
+            {
+                "key": "field_off_type",
+                "label": "Тип выдачи",
+                "name": "delivery_type",
+                "aria-label": "",
+                "type": "select",
+                "instructions": "",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "20",
+                    "class": "",
+                    "id": ""
+                },
+                "choices": {
+                    "manual": "Ручная",
+                    "auto": "Автовыдача"
+                },
+                "default_value": false,
+                "return_format": "value",
+                "multiple": 0,
+                "allow_null": 0,
+                "allow_in_bindings": 1,
+                "ui": 0,
+                "ajax": 0,
+                "placeholder": "",
+                "create_options": 0,
+                "save_options": 0
+            },
+            {
+                "key": "field_off_secret",
+                "label": "Скрытые данные (Текст\/Ключ)",
+                "name": "secret_data",
+                "aria-label": "",
+                "type": "textarea",
+                "instructions": "",
+                "required": 0,
+                "conditional_logic": [
+                    [
+                        {
+                            "field": "field_off_type",
+                            "operator": "==",
+                            "value": "auto"
+                        }
+                    ]
+                ],
+                "wrapper": {
+                    "width": "80",
+                    "class": "",
+                    "id": ""
+                },
+                "default_value": "",
+                "maxlength": "",
+                "allow_in_bindings": 1,
+                "rows": "",
+                "placeholder": "",
+                "new_lines": ""
+            },
+            {
+                "key": "field_off_price",
+                "label": "Цена обычная",
+                "name": "price",
+                "aria-label": "",
+                "type": "number",
+                "instructions": "",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "20",
+                    "class": "",
+                    "id": ""
+                },
+                "default_value": "",
+                "min": 0,
+                "max": "",
+                "allow_in_bindings": 1,
+                "placeholder": "",
+                "step": "",
+                "prepend": "",
+                "append": ""
+            },
+            {
+                "key": "field_69ef96995b0f3",
+                "label": "Цена по акции",
+                "name": "price_sell",
+                "aria-label": "",
+                "type": "number",
+                "instructions": "",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "20",
+                    "class": "",
+                    "id": ""
+                },
+                "default_value": "",
+                "min": 0,
+                "max": "",
+                "allow_in_bindings": 1,
+                "placeholder": "",
+                "step": "",
+                "prepend": "",
+                "append": ""
+            },
+            {
+                "key": "field_69ef96402858f",
+                "label": "Способ получения",
+                "name": "sposob_polucheniya",
+                "aria-label": "",
+                "type": "textarea",
+                "instructions": "",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "20",
+                    "class": "",
+                    "id": ""
+                },
+                "default_value": "",
+                "maxlength": "",
+                "allow_in_bindings": 0,
+                "rows": 3,
+                "placeholder": "",
+                "new_lines": "br"
+            },
+            {
+                "key": "field_69ef975a5ea52",
+                "label": "Описание",
+                "name": "opisanie",
+                "aria-label": "",
+                "type": "textarea",
+                "instructions": "",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "default_value": "",
+                "maxlength": "",
+                "allow_in_bindings": 0,
+                "rows": "",
+                "placeholder": "",
+                "new_lines": ""
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "products"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": "",
+        "active": true,
+        "description": "",
+        "show_in_rest": 0
+    },
+    {
+        "key": "group_marketplace_options",
+        "title": "Настройки системы (Admin)",
+        "fields": [
+            {
+                "key": "field_opt_tabs",
+                "label": "Разделы",
+                "name": "",
+                "aria-label": "",
+                "type": "tab",
+                "instructions": "",
+                "required": 0,
+                "conditional_logic": false,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "placement": "top",
+                "endpoint": 0,
+                "selected": 0
+            },
+            {
+                "key": "field_opt_commission",
+                "label": "Комиссия системы (%)",
+                "name": "system_commission",
+                "aria-label": "",
+                "type": "number",
+                "instructions": "",
+                "required": false,
+                "conditional_logic": false,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "default_value": 10,
+                "min": "",
+                "max": "",
+                "step": "",
+                "placeholder": "",
+                "prepend": "",
+                "append": ""
+            },
+            {
+                "key": "field_opt_ref_tab",
+                "label": "Реферальная система",
+                "name": "",
+                "aria-label": "",
+                "type": "tab",
+                "instructions": "",
+                "required": 0,
+                "conditional_logic": false,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "placement": "top",
+                "endpoint": 0,
+                "selected": 0
+            },
+            {
+                "key": "field_ref_l1",
+                "label": "Уровень 1 (%)",
+                "name": "ref_l1",
+                "aria-label": "",
+                "type": "number",
+                "instructions": "",
+                "required": false,
+                "conditional_logic": false,
+                "wrapper": {
+                    "width": "16",
+                    "class": "",
+                    "id": ""
+                },
+                "default_value": 5,
+                "min": "",
+                "max": "",
+                "step": "",
+                "placeholder": "",
+                "prepend": "",
+                "append": ""
+            },
+            {
+                "key": "field_ref_l2",
+                "label": "Уровень 2 (%)",
+                "name": "ref_l2",
+                "aria-label": "",
+                "type": "number",
+                "instructions": "",
+                "required": false,
+                "conditional_logic": false,
+                "wrapper": {
+                    "width": "16",
+                    "class": "",
+                    "id": ""
+                },
+                "default_value": 1,
+                "min": "",
+                "max": "",
+                "step": "",
+                "placeholder": "",
+                "prepend": "",
+                "append": ""
+            },
+            {
+                "key": "field_ref_l3",
+                "label": "Уровень 3 (%)",
+                "name": "ref_l3",
+                "aria-label": "",
+                "type": "number",
+                "instructions": "",
+                "required": false,
+                "conditional_logic": false,
+                "wrapper": {
+                    "width": "16",
+                    "class": "",
+                    "id": ""
+                },
+                "default_value": 1,
+                "min": "",
+                "max": "",
+                "step": "",
+                "placeholder": "",
+                "prepend": "",
+                "append": ""
+            },
+            {
+                "key": "field_ref_l4",
+                "label": "Уровень 4 (%)",
+                "name": "ref_l4",
+                "aria-label": "",
+                "type": "number",
+                "instructions": "",
+                "required": false,
+                "conditional_logic": false,
+                "wrapper": {
+                    "width": "16",
+                    "class": "",
+                    "id": ""
+                },
+                "default_value": 1,
+                "min": "",
+                "max": "",
+                "step": "",
+                "placeholder": "",
+                "prepend": "",
+                "append": ""
+            },
+            {
+                "key": "field_ref_l5",
+                "label": "Уровень 5 (%)",
+                "name": "ref_l5",
+                "aria-label": "",
+                "type": "number",
+                "instructions": "",
+                "required": false,
+                "conditional_logic": false,
+                "wrapper": {
+                    "width": "16",
+                    "class": "",
+                    "id": ""
+                },
+                "default_value": 0.5,
+                "min": "",
+                "max": "",
+                "step": "",
+                "placeholder": "",
+                "prepend": "",
+                "append": ""
+            },
+            {
+                "key": "field_ref_l6",
+                "label": "Уровень 6 (%)",
+                "name": "ref_l6",
+                "aria-label": "",
+                "type": "number",
+                "instructions": "",
+                "required": false,
+                "conditional_logic": false,
+                "wrapper": {
+                    "width": "16",
+                    "class": "",
+                    "id": ""
+                },
+                "default_value": 0.5,
+                "min": "",
+                "max": "",
+                "step": "",
+                "placeholder": "",
+                "prepend": "",
+                "append": ""
+            },
+            {
+                "key": "field_opt_api_tab",
+                "label": "API и Шлюзы",
+                "name": "",
+                "aria-label": "",
+                "type": "tab",
+                "instructions": "",
+                "required": 0,
+                "conditional_logic": false,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "placement": "top",
+                "endpoint": 0,
+                "selected": 0
+            },
+            {
+                "key": "field_opt_fk_merchant",
+                "label": "FK Merchant ID",
+                "name": "fk_merchant_id",
+                "aria-label": "",
+                "type": "text",
+                "instructions": "",
+                "required": false,
+                "conditional_logic": false,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "default_value": "",
+                "maxlength": "",
+                "placeholder": "",
+                "prepend": "",
+                "append": ""
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "options_page",
+                    "operator": "==",
+                    "value": "options-system"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": "",
+        "active": true,
+        "description": "",
+        "show_in_rest": 0
+    },
+    {
+        "key": "group_marketplace_payouts",
+        "title": "Управление выплатами",
+        "fields": [
+            {
+                "key": "field_pay_amount",
+                "label": "Сумма к выводу",
+                "name": "payout_amount",
+                "aria-label": "",
+                "type": "number",
+                "instructions": "",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "25",
+                    "class": "",
+                    "id": ""
+                },
+                "default_value": "",
+                "min": "",
+                "max": "",
+                "allow_in_bindings": 1,
+                "placeholder": "",
+                "step": "",
+                "prepend": "",
+                "append": ""
+            },
+            {
+                "key": "field_pay_method",
+                "label": "Реквизиты карты\/кошелька",
+                "name": "payout_method",
+                "aria-label": "",
+                "type": "text",
+                "instructions": "",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "25",
+                    "class": "",
+                    "id": ""
+                },
+                "default_value": "",
+                "maxlength": "",
+                "allow_in_bindings": 1,
+                "placeholder": "",
+                "prepend": "",
+                "append": ""
+            },
+            {
+                "key": "field_pay_status",
+                "label": "Статус выплаты",
+                "name": "payout_status",
+                "aria-label": "",
+                "type": "select",
+                "instructions": "",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "25",
+                    "class": "",
+                    "id": ""
+                },
+                "choices": {
+                    "pending": "В ожидании (Hold 48h)",
+                    "processing": "В обработке",
+                    "completed": "Выплачено",
+                    "rejected": "Отклонено"
+                },
+                "default_value": false,
+                "return_format": "value",
+                "multiple": 0,
+                "allow_null": 0,
+                "allow_in_bindings": 1,
+                "ui": 0,
+                "ajax": 0,
+                "placeholder": "",
+                "create_options": 0,
+                "save_options": 0
+            },
+            {
+                "key": "field_69ef9c53ff7a0",
+                "label": "Объявление",
+                "name": "obyavlenie",
+                "aria-label": "",
+                "type": "post_object",
+                "instructions": "",
+                "required": 0,
+                "conditional_logic": 0,
+                "wrapper": {
+                    "width": "25",
+                    "class": "",
+                    "id": ""
+                },
+                "post_type": [
+                    "orders"
+                ],
+                "post_status": "",
+                "taxonomy": "",
+                "return_format": "object",
+                "multiple": 0,
+                "allow_null": 0,
+                "allow_in_bindings": 0,
+                "bidirectional": 0,
+                "ui": 1,
+                "bidirectional_target": []
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "payout"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": "",
+        "active": true,
+        "description": "",
+        "show_in_rest": 0
+    },
+    {
+        "key": "taxonomy_69ef94f2143f4",
+        "title": "Игры \/ Категории",
+        "menu_order": 0,
+        "active": true,
+        "taxonomy": "group",
+        "object_type": [
+            "products"
+        ],
+        "advanced_configuration": 1,
+        "import_source": "",
+        "import_date": "",
+        "labels": {
+            "name": "Игры \/ Категории",
+            "singular_name": "Игра \/ Категория",
+            "menu_name": "Игра \/ Категория",
+            "all_items": "Все Игра \/ Категория",
+            "edit_item": "Изменить Игра \/ Категория",
+            "view_item": "Посмотреть Игра \/ Категория",
+            "update_item": "Обновить Игра \/ Категория",
+            "add_new_item": "Добавить новое Игра \/ Категория",
+            "new_item_name": "Новое Игра \/ Категория название",
+            "parent_item": "Родитель Игра \/ Категория",
+            "parent_item_colon": "Родитель Игра \/ Категория:",
+            "search_items": "Поиск Игра \/ Категория",
+            "most_used": "",
+            "not_found": "Не найдено игра \/ категория",
+            "no_terms": "Нет игра \/ категория",
+            "name_field_description": "",
+            "slug_field_description": "",
+            "parent_field_description": "",
+            "desc_field_description": "",
+            "filter_by_item": "Фильтр по игра \/ категория",
+            "items_list_navigation": "Игра \/ Категория навигация по списку",
+            "items_list": "Игра \/ Категория список",
+            "back_to_items": "← Перейти к игра \/ категория",
+            "item_link": "Cсылка на Игра \/ Категория",
+            "item_link_description": "Ссылка на игра \/ категория"
+        },
+        "description": "",
+        "capabilities": {
+            "manage_terms": "manage_categories",
+            "edit_terms": "manage_categories",
+            "delete_terms": "manage_categories",
+            "assign_terms": "edit_posts"
+        },
+        "public": 1,
+        "publicly_queryable": 1,
+        "hierarchical": 1,
+        "show_ui": 1,
+        "show_in_menu": 1,
+        "show_in_nav_menus": 1,
+        "show_in_rest": 1,
+        "rest_base": "",
+        "rest_namespace": "wp\/v2",
+        "rest_controller_class": "WP_REST_Terms_Controller",
+        "show_tagcloud": 1,
+        "show_in_quick_edit": 1,
+        "show_admin_column": 1,
+        "rewrite": {
+            "permalink_rewrite": "taxonomy_key",
+            "with_front": "1",
+            "rewrite_hierarchical": "1"
+        },
+        "query_var": "post_type_key",
+        "query_var_name": "",
+        "default_term": {
+            "default_term_enabled": "0"
+        },
+        "sort": 1,
+        "meta_box": "default",
+        "meta_box_cb": "",
+        "meta_box_sanitize_cb": ""
+    },
+    {
+        "key": "taxonomy_69ef9cf01330f",
+        "title": "Типы Товаров \/ Услуг",
+        "menu_order": 0,
+        "active": true,
+        "taxonomy": "type-group",
+        "object_type": [
+            "products"
+        ],
+        "advanced_configuration": 1,
+        "import_source": "",
+        "import_date": "",
+        "labels": {
+            "name": "Типы Товаров \/ Услуг",
+            "singular_name": "Тип Товара \/ Услуги",
+            "menu_name": "Тип товара \/ Услуги",
+            "all_items": "Все Тип товара \/ Услуги",
+            "edit_item": "Изменить Тип Товара \/ Услуги",
+            "view_item": "Посмотреть Тип Товара \/ Услуги",
+            "update_item": "Обновить Тип Товара \/ Услуги",
+            "add_new_item": "Добавить новое Тип Товара \/ Услуги",
+            "new_item_name": "Новое Тип Товара \/ Услуги название",
+            "parent_item": "Родитель Тип Товара \/ Услуги",
+            "parent_item_colon": "Родитель Тип Товара \/ Услуги:",
+            "search_items": "Поиск Тип товара \/ Услуги",
+            "most_used": "",
+            "not_found": "Не найдено тип товара \/ услуги",
+            "no_terms": "Нет тип товара \/ услуги",
+            "name_field_description": "",
+            "slug_field_description": "",
+            "parent_field_description": "",
+            "desc_field_description": "",
+            "filter_by_item": "Фильтр по тип товара \/ услуги",
+            "items_list_navigation": "Тип товара \/ Услуги навигация по списку",
+            "items_list": "Тип товара \/ Услуги список",
+            "back_to_items": "← Перейти к тип товара \/ услуги",
+            "item_link": "Cсылка на Тип Товара \/ Услуги",
+            "item_link_description": "Ссылка на тип товара \/ услуги"
+        },
+        "description": "",
+        "capabilities": {
+            "manage_terms": "manage_categories",
+            "edit_terms": "manage_categories",
+            "delete_terms": "manage_categories",
+            "assign_terms": "edit_posts"
+        },
+        "public": 1,
+        "publicly_queryable": 1,
+        "hierarchical": 1,
+        "show_ui": 1,
+        "show_in_menu": 1,
+        "show_in_nav_menus": 1,
+        "show_in_rest": 1,
+        "rest_base": "",
+        "rest_namespace": "wp\/v2",
+        "rest_controller_class": "WP_REST_Terms_Controller",
+        "show_tagcloud": 1,
+        "show_in_quick_edit": 1,
+        "show_admin_column": 1,
+        "rewrite": {
+            "permalink_rewrite": "taxonomy_key",
+            "with_front": "1",
+            "rewrite_hierarchical": "1"
+        },
+        "query_var": "post_type_key",
+        "query_var_name": "",
+        "default_term": {
+            "default_term_enabled": "0"
+        },
+        "sort": 1,
+        "meta_box": "default",
+        "meta_box_cb": "",
+        "meta_box_sanitize_cb": ""
+    },
+    {
+        "key": "post_type_69ef8dd2b8ac7",
+        "title": "Заказы",
+        "menu_order": 0,
+        "active": true,
+        "post_type": "orders",
+        "advanced_configuration": true,
+        "import_source": "",
+        "import_date": "",
+        "labels": {
+            "name": "Заказы",
+            "singular_name": "Заказ",
+            "menu_name": "Заказы",
+            "all_items": "Все Заказы",
+            "edit_item": "Изменить Заказ",
+            "view_item": "Посмотреть Заказ",
+            "view_items": "Посмотреть Заказы",
+            "add_new_item": "Добавить новое Заказ",
+            "add_new": "Добавить новое Заказ",
+            "new_item": "Новый Заказ",
+            "parent_item_colon": "Родитель Заказ:",
+            "search_items": "Поиск Заказы",
+            "not_found": "Не найдено заказы",
+            "not_found_in_trash": "В корзине не найдено заказы",
+            "archives": "Архивы Заказ",
+            "attributes": "Атрибуты Заказ",
+            "featured_image": "",
+            "set_featured_image": "",
+            "remove_featured_image": "",
+            "use_featured_image": "",
+            "insert_into_item": "Вставить в заказ",
+            "uploaded_to_this_item": "Загружено в это заказ",
+            "filter_items_list": "Фильтровать список заказы",
+            "filter_by_date": "Фильтр заказы по дате",
+            "items_list_navigation": "Заказы навигация по списку",
+            "items_list": "Заказы список",
+            "item_published": "Заказ опубликовано.",
+            "item_published_privately": "Заказ опубликована приватно.",
+            "item_reverted_to_draft": "Заказ преобразован в черновик.",
+            "item_scheduled": "Заказ запланировано.",
+            "item_updated": "Заказ обновлён.",
+            "item_link": "Cсылка на Заказ",
+            "item_link_description": "Ссылка на заказ."
+        },
+        "description": "",
+        "public": true,
+        "hierarchical": false,
+        "exclude_from_search": true,
+        "publicly_queryable": true,
+        "show_ui": true,
+        "show_in_menu": true,
+        "admin_menu_parent": "",
+        "show_in_admin_bar": true,
+        "show_in_nav_menus": true,
+        "show_in_rest": true,
+        "rest_base": "",
+        "rest_namespace": "wp\/v2",
+        "rest_controller_class": "WP_REST_Posts_Controller",
+        "menu_position": "",
+        "menu_icon": {
+            "type": "dashicons",
+            "value": "dashicons-money-alt"
+        },
+        "rename_capabilities": false,
+        "singular_capability_name": "post",
+        "plural_capability_name": "posts",
+        "supports": [
+            "title",
+            "custom-fields"
+        ],
+        "taxonomies": "",
+        "has_archive": true,
+        "has_archive_slug": "",
+        "rewrite": {
+            "permalink_rewrite": "post_type_key",
+            "with_front": "1",
+            "feeds": "0",
+            "pages": "1"
+        },
+        "query_var": "post_type_key",
+        "query_var_name": "",
+        "can_export": true,
+        "delete_with_user": false,
+        "register_meta_box_cb": "",
+        "enter_title_here": ""
+    },
+    {
+        "key": "post_type_69ef8e5cac439",
+        "title": "Товары",
+        "menu_order": 0,
+        "active": true,
+        "post_type": "products",
+        "advanced_configuration": true,
+        "import_source": "",
+        "import_date": "",
+        "labels": {
+            "name": "Товары",
+            "singular_name": "Товар",
+            "menu_name": "Товары",
+            "all_items": "Все Товары",
+            "edit_item": "Изменить Товар",
+            "view_item": "Посмотреть Товар",
+            "view_items": "Посмотреть Товары",
+            "add_new_item": "Добавить новое Товар",
+            "add_new": "Добавить новое Товар",
+            "new_item": "Новый Товар",
+            "parent_item_colon": "Родитель Товар:",
+            "search_items": "Поиск Товары",
+            "not_found": "Не найдено товары",
+            "not_found_in_trash": "В корзине не найдено товары",
+            "archives": "Архивы Товар",
+            "attributes": "Атрибуты Товар",
+            "featured_image": "",
+            "set_featured_image": "",
+            "remove_featured_image": "",
+            "use_featured_image": "",
+            "insert_into_item": "Вставить в товар",
+            "uploaded_to_this_item": "Загружено в это товар",
+            "filter_items_list": "Фильтровать список товары",
+            "filter_by_date": "Фильтр товары по дате",
+            "items_list_navigation": "Товары навигация по списку",
+            "items_list": "Товары список",
+            "item_published": "Товар опубликовано.",
+            "item_published_privately": "Товар опубликована приватно.",
+            "item_reverted_to_draft": "Товар преобразован в черновик.",
+            "item_scheduled": "Товар запланировано.",
+            "item_updated": "Товар обновлён.",
+            "item_link": "Cсылка на Товар",
+            "item_link_description": "Ссылка на товар."
+        },
+        "description": "",
+        "public": true,
+        "hierarchical": false,
+        "exclude_from_search": false,
+        "publicly_queryable": true,
+        "show_ui": true,
+        "show_in_menu": true,
+        "admin_menu_parent": "",
+        "show_in_admin_bar": true,
+        "show_in_nav_menus": true,
+        "show_in_rest": true,
+        "rest_base": "",
+        "rest_namespace": "wp\/v2",
+        "rest_controller_class": "WP_REST_Posts_Controller",
+        "menu_position": "",
+        "menu_icon": {
+            "type": "dashicons",
+            "value": "dashicons-superhero-alt"
+        },
+        "rename_capabilities": false,
+        "singular_capability_name": "post",
+        "plural_capability_name": "posts",
+        "supports": [
+            "title",
+            "thumbnail",
+            "custom-fields"
+        ],
+        "taxonomies": "",
+        "has_archive": true,
+        "has_archive_slug": "",
+        "rewrite": {
+            "permalink_rewrite": "post_type_key",
+            "with_front": "1",
+            "feeds": "0",
+            "pages": "1"
+        },
+        "query_var": "post_type_key",
+        "query_var_name": "",
+        "can_export": true,
+        "delete_with_user": false,
+        "register_meta_box_cb": "",
+        "enter_title_here": ""
+    },
+    {
+        "key": "post_type_69ef8ff610e50",
+        "title": "Управление выплатами",
+        "menu_order": 0,
+        "active": true,
+        "post_type": "payout",
+        "advanced_configuration": true,
+        "import_source": "",
+        "import_date": "",
+        "labels": {
+            "name": "Управление выплатами",
+            "singular_name": "Выплата",
+            "menu_name": "Управление выплатами",
+            "all_items": "Все Управление выплатами",
+            "edit_item": "Изменить Выплата",
+            "view_item": "Посмотреть Выплата",
+            "view_items": "Посмотреть Управление выплатами",
+            "add_new_item": "Добавить новое Выплата",
+            "add_new": "Добавить новое Выплата",
+            "new_item": "Новый Выплата",
+            "parent_item_colon": "Родитель Выплата:",
+            "search_items": "Поиск Управление выплатами",
+            "not_found": "Не найдено управление выплатами",
+            "not_found_in_trash": "В корзине не найдено управление выплатами",
+            "archives": "Архивы Выплата",
+            "attributes": "Атрибуты Выплата",
+            "featured_image": "",
+            "set_featured_image": "",
+            "remove_featured_image": "",
+            "use_featured_image": "",
+            "insert_into_item": "Вставить в выплата",
+            "uploaded_to_this_item": "Загружено в это выплата",
+            "filter_items_list": "Фильтровать список управление выплатами",
+            "filter_by_date": "Фильтр управление выплатами по дате",
+            "items_list_navigation": "Управление выплатами навигация по списку",
+            "items_list": "Управление выплатами список",
+            "item_published": "Выплата опубликовано.",
+            "item_published_privately": "Выплата опубликована приватно.",
+            "item_reverted_to_draft": "Выплата преобразован в черновик.",
+            "item_scheduled": "Выплата запланировано.",
+            "item_updated": "Выплата обновлён.",
+            "item_link": "Cсылка на Выплата",
+            "item_link_description": "Ссылка на выплата."
+        },
+        "description": "",
+        "public": true,
+        "hierarchical": false,
+        "exclude_from_search": false,
+        "publicly_queryable": true,
+        "show_ui": true,
+        "show_in_menu": true,
+        "admin_menu_parent": "",
+        "show_in_admin_bar": true,
+        "show_in_nav_menus": true,
+        "show_in_rest": true,
+        "rest_base": "",
+        "rest_namespace": "wp\/v2",
+        "rest_controller_class": "WP_REST_Posts_Controller",
+        "menu_position": "",
+        "menu_icon": {
+            "type": "dashicons",
+            "value": "dashicons-smiley"
+        },
+        "rename_capabilities": false,
+        "singular_capability_name": "post",
+        "plural_capability_name": "posts",
+        "supports": [
+            "title",
+            "custom-fields"
+        ],
+        "taxonomies": "",
+        "has_archive": false,
+        "has_archive_slug": "",
+        "rewrite": {
+            "permalink_rewrite": "post_type_key",
+            "with_front": "1",
+            "feeds": "0",
+            "pages": "1"
+        },
+        "query_var": "post_type_key",
+        "query_var_name": "",
+        "can_export": true,
+        "delete_with_user": false,
+        "register_meta_box_cb": "",
+        "enter_title_here": ""
+    },
+    {
+        "key": "ui_options_page_69ed26e0061a7",
+        "title": "Настройки системы",
+        "active": true,
+        "menu_order": 0,
+        "page_title": "Настройки системы",
+        "menu_slug": "options-system",
+        "parent_slug": "none",
+        "advanced_configuration": 1,
+        "icon_url": "",
+        "menu_title": "",
+        "position": "",
+        "redirect": 0,
+        "description": "",
+        "menu_icon": {
+            "type": "dashicons",
+            "value": "dashicons-arrow-right-alt"
+        },
+        "update_button": "Обновить",
+        "updated_message": "Настройки были обновлены",
+        "capability": "edit_posts",
+        "data_storage": "options",
+        "post_id": "",
+        "autoload": 0
+    }
+]

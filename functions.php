@@ -55,38 +55,28 @@ if (function_exists('acf_add_options_page')) {
 }
 
 add_action('wp_enqueue_scripts', function () {
-    $v   = '1.0.2';
+    $v   = '1.0.4';
     $css = get_template_directory_uri() . '/assets/css/';
     $js  = get_template_directory_uri() . '/assets/js/';
 
     wp_enqueue_style('google-fonts', 'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap', [], null);
-    wp_enqueue_style('mkt-main',     $css . 'main.css',      [], $v);
-    wp_enqueue_style('mkt-modals',   $css . 'modals.css',    ['mkt-main'], $v);
+    wp_enqueue_style('mkt-main',      $css . 'main.css',      [], $v);
+    wp_enqueue_style('mkt-modals',    $css . 'modals.css',    ['mkt-main'], $v);
+    wp_enqueue_style('mkt-auth',      $css . 'auth.css',      ['mkt-main'], $v);
+    wp_enqueue_style('mkt-dashboard', $css . 'dashboard.css', ['mkt-main'], $v);
 
-    wp_enqueue_script('mkt-modals', $js . 'modals.js', [], $v, true);
-    wp_enqueue_script('mkt-main',   $js . 'main.js',   ['mkt-modals'], $v, true);
-
-    $tpl = get_page_template_slug();
-
-    if ($tpl === 'page-auth.php') {
-        wp_enqueue_style('mkt-auth',  $css . 'auth.css',  ['mkt-main'], $v);
-        wp_enqueue_script('mkt-auth', $js  . 'auth.js',   ['mkt-main'], $v, true);
-        $rc = get_field('recaptcha_site_key', 'option');
-        if ($rc) wp_enqueue_script('recaptcha', 'https://www.google.com/recaptcha/api.js', [], null, true);
-    }
-
-    if ($tpl === 'page-dashboard.php') {
-        wp_enqueue_style('mkt-dashboard',  $css . 'dashboard.css',  ['mkt-main'], $v);
-        wp_enqueue_script('mkt-dashboard', $js  . 'dashboard.js',   ['mkt-main'], $v, true);
-    }
-
-    if ($tpl === 'page-order.php') {
-        wp_enqueue_script('mkt-chat', $js . 'chat.js', ['mkt-main'], $v, true);
-    }
+    wp_enqueue_script('mkt-modals',  $js . 'modals.js',  [],            $v, true);
+    wp_enqueue_script('mkt-main',    $js . 'main.js',    ['mkt-modals'],$v, true);
+    wp_enqueue_script('mkt-auth',    $js . 'auth.js',    ['mkt-main'],  $v, true);
+    wp_enqueue_script('mkt-catalog', $js . 'catalog.js', ['mkt-main'],  $v, true);
+    wp_enqueue_script('mkt-chat',    $js . 'chat.js',    ['mkt-main'],  $v, true);
 
     if (is_singular('products')) {
         wp_enqueue_script('mkt-product', $js . 'product.js', ['mkt-main'], $v, true);
     }
+
+    $rc = get_field('recaptcha_site_key', 'option');
+    if ($rc) wp_enqueue_script('recaptcha', 'https://www.google.com/recaptcha/api.js', [], null, true);
 
     wp_localize_script('mkt-main', 'MP', [
         'ajax'         => admin_url('admin-ajax.php'),
@@ -95,7 +85,7 @@ add_action('wp_enqueue_scripts', function () {
         'ajaxNonce'    => wp_create_nonce('marketplace_nonce'),
         'userId'       => get_current_user_id(),
         'loggedIn'     => is_user_logged_in(),
-        'recaptchaKey' => get_field('recaptcha_site_key', 'option') ?: '',
+        'recaptchaKey' => $rc ?: '',
         'authUrl'      => home_url('/auth/'),
         'dashUrl'      => home_url('/dashboard/'),
     ]);

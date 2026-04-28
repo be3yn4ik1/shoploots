@@ -20,7 +20,7 @@ $rc_key = mkt_get_system_option('recaptcha_site_key', '');
             <button class="auth-tab" data-tab="register">Регистрация</button>
         </div>
 
-        <form class="auth-form active" id="login-form" data-action="mkt_login">
+        <form class="auth-form active" id="login-form" method="post" data-action="mkt_login">
             <div class="form-group">
                 <label>Email</label>
                 <input type="email" name="email" placeholder="you@example.com" required autocomplete="email">
@@ -38,7 +38,7 @@ $rc_key = mkt_get_system_option('recaptcha_site_key', '');
             <button type="submit" class="btn-primary btn-full">Войти</button>
         </form>
 
-        <form class="auth-form" id="register-form" data-action="mkt_register">
+        <form class="auth-form" id="register-form" method="post" data-action="mkt_register">
             <div class="form-group">
                 <label>Имя</label>
                 <input type="text" name="name" placeholder="Ваше имя" required>

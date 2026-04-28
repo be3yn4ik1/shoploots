@@ -33,7 +33,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='
 .btn-danger{background:var(--red);color:#fff}.btn-danger:hover{background:#cc3c3c}
 .btn-ghost{background:transparent;color:var(--primary);border:1px solid var(--primary)}.btn-ghost:hover{background:rgba(0,119,255,.07)}
 .btn-full{width:100%}
-.btn-sm{padding:6px 14px;font-size:.8rem}
+.btn-sm{padding:14px 14px;font-size:.9rem}
 .btn-icon{background:none;border:none;cursor:pointer;color:var(--text-secondary);display:inline-flex;align-items:center;padding:4px;border-radius:6px;transition:color .2s,background .2s}
 .btn-icon:hover{color:var(--primary);background:rgba(0,119,255,.08)}
 
@@ -225,7 +225,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='
 .product-manage-thumb{width:60px;height:60px;border-radius:8px;object-fit:cover;background:#f0f2f5;flex-shrink:0}
 .product-manage-info{flex:1}
 .product-manage-title{font-weight:600;font-size:.9rem}
-.product-manage-meta{display:flex;gap:10px;margin-top:4px;flex-wrap:wrap}
+.product-manage-meta{display:flex;gap:10px;margin-top:4px;flex-wrap:wrap;align-items:center}
 .product-manage-actions{display:flex;gap:8px;flex-shrink:0}
 
 .modal-actions{display:flex;gap:10px;margin-top:16px;justify-content:flex-end}
@@ -244,4 +244,41 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='
     .stats-grid{grid-template-columns:1fr 1fr}
     .products-grid{grid-template-columns:1fr}
     body{font-size:14px}
+}
+
+.reviews-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.review-card{background:#fafbfc;border:1px solid var(--border);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:10px}
+.review-header{display:flex;align-items:flex-start;gap:10px}
+.review-avatar{width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.review-name{font-weight:600;font-size:.875rem}
+.review-stars{font-size:.9rem;line-height:1;margin-top:2px}
+.review-date{font-size:.75rem;color:var(--text-secondary);margin-left:auto;white-space:nowrap}
+.review-text{font-size:.85rem;color:var(--text-secondary);line-height:1.6;margin:0}
+
+.recently-viewed-scroll{overflow-x:auto;padding-bottom:8px}
+.recently-viewed-scroll::-webkit-scrollbar{height:4px}
+.recently-viewed-scroll::-webkit-scrollbar-track{background:transparent}
+.recently-viewed-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.recently-viewed-grid{display:flex;gap:12px;min-width:max-content}
+.recently-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;width:160px;flex-shrink:0;display:flex;flex-direction:column;transition:box-shadow .2s,transform .15s}
+.recently-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.recently-thumb{height:100px;overflow:hidden;background:#f0f2f5}
+.recently-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
+.recently-card:hover .recently-thumb img{transform:scale(1.05)}
+.recently-body{padding:10px}
+.recently-title{font-size:.78rem;font-weight:600;color:var(--text);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recently-price{font-size:.82rem;font-weight:700;color:var(--primary)}
+
+.seller-info-link{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;border-radius:var(--radius-sm);padding:8px;margin:-8px;transition:background .2s}
+.seller-info-link:hover{background:#f5f7fa}
+
+.img-upload-area{border:2px dashed var(--border);border-radius:var(--radius-sm);padding:20px;cursor:pointer;transition:border-color .2s;position:relative;text-align:center}
+.img-upload-area:hover{border-color:var(--primary)}
+.img-upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.img-upload-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--text-secondary);font-size:.85rem;pointer-events:none}
+
+.dash-nav-logout:hover{background:#fff0f0 !important;color:var(--red) !important}
+
+@media(max-width:760px){
+    .reviews-grid{grid-template-columns:1fr}
 }

@@ -45,6 +45,22 @@ add_action('rest_api_init', function () {
         'permission_callback' => 'is_user_logged_in',
     ]);
 
+    register_rest_route('marketplace/v1', '/reviews/(?P<product_id>\d+)', [
+        'methods'             => 'GET',
+        'callback'            => 'mkt_rest_get_reviews',
+        'permission_callback' => '__return_true',
+        'args'                => [
+            'product_id' => ['required' => true, 'sanitize_callback' => 'absint'],
+            'page'       => ['default' => 1, 'sanitize_callback' => 'absint'],
+        ],
+    ]);
+
+    register_rest_route('marketplace/v1', '/seller/(?P<seller_id>\d+)/products', [
+        'methods'             => 'GET',
+        'callback'            => 'mkt_rest_get_seller_products',
+        'permission_callback' => '__return_true',
+    ]);
+
     register_rest_route('marketplace/v1', '/stats', [
         'methods'             => 'GET',
         'callback'            => 'mkt_rest_get_stats',
@@ -363,6 +379,139 @@ function mkt_ajax_get_categories(): void {
         'categories' => array_map(fn($t) => ['id' => $t->term_id, 'name' => $t->name, 'slug' => $t->slug], is_array($cats) ? $cats : []),
         'types'      => array_map(fn($t) => ['id' => $t->term_id, 'name' => $t->name, 'slug' => $t->slug], is_array($types) ? $types : []),
     ]);
+}
+
+function mkt_rest_get_reviews(WP_REST_Request $req): WP_REST_Response {
+    $product_id = (int) $req->get_param('product_id');
+    $page       = max(1, (int) $req->get_param('page'));
+    $per_page   = 4;
+
+    $query = new WP_Query([
+        'post_type'      => 'orders',
+        'post_status'    => 'publish',
+        'posts_per_page' => $per_page,
+        'paged'          => $page,
+        'meta_query'     => [
+            'relation' => 'AND',
+            ['key' => 'offer_id',     'value' => $product_id, 'compare' => '='],
+            ['key' => 'order_status', 'value' => 'completed'],
+            ['key' => 'tekst_otzyva', 'value' => '',          'compare' => '!='],
+        ],
+    ]);
+
+    $reviews = [];
+    foreach ($query->posts as $post) {
+        $review = get_field('otzyv', $post->ID);
+        if (empty($review['tekst_otzyva'])) continue;
+        $buyer_id = (int) get_field('buyer_id', $post->ID);
+        $reviews[] = [
+            'id'     => $post->ID,
+            'text'   => esc_html($review['tekst_otzyva']),
+            'rating' => min(5, max(1, (int) ($review['oczenka'] ?? 5))),
+            'buyer'  => $buyer_id ? esc_html(get_userdata($buyer_id)->display_name) : 'Покупатель',
+            'avatar' => $buyer_id ? mkt_get_avatar_url($buyer_id) : '',
+            'date'   => get_the_date('d.m.Y', $post->ID),
+        ];
+    }
+
+    return new WP_REST_Response([
+        'reviews'     => $reviews,
+        'total'       => $query->found_posts,
+        'total_pages' => $query->max_num_pages,
+        'page'        => $page,
+    ], 200);
+}
+
+function mkt_rest_get_seller_products(WP_REST_Request $req): WP_REST_Response {
+    $seller_id = (int) $req->get_param('seller_id');
+    $page      = max(1, (int) ($req->get_param('page') ?? 1));
+
+    $query = new WP_Query([
+        'post_type'      => 'products',
+        'post_status'    => 'publish',
+        'posts_per_page' => 20,
+        'paged'          => $page,
+        'meta_query'     => [
+            ['key' => 'product_seller_id', 'value' => $seller_id],
+            ['key' => 'is_active',         'value' => '1'],
+        ],
+    ]);
+
+    $items = [];
+    foreach ($query->posts as $post) {
+        $items[] = mkt_format_product($post->ID);
+    }
+
+    return new WP_REST_Response([
+        'items'       => $items,
+        'total'       => $query->found_posts,
+        'total_pages' => $query->max_num_pages,
+        'page'        => $page,
+    ], 200);
+}
+
+add_action('wp_ajax_mkt_create_product', 'mkt_ajax_create_product');
+function mkt_ajax_create_product(): void {
+    check_ajax_referer('marketplace_nonce', 'nonce');
+    if (!is_user_logged_in()) wp_send_json_error(['message' => 'Не авторизован.']);
+
+    $user_id  = get_current_user_id();
+    if (!mkt_is_seller($user_id)) {
+        wp_send_json_error(['message' => 'Только продавцы могут создавать товары.']);
+    }
+
+    $title      = sanitize_text_field($_POST['title']       ?? '');
+    $price      = (float) ($_POST['price']                  ?? 0);
+    $price_sale = (float) ($_POST['price_sale']             ?? 0);
+    $delivery   = sanitize_text_field($_POST['delivery']    ?? 'manual');
+    $desc       = sanitize_textarea_field($_POST['description'] ?? '');
+    $how_to     = sanitize_textarea_field($_POST['how_to']  ?? '');
+    $keys       = sanitize_textarea_field($_POST['keys']    ?? '');
+    $category   = (int) ($_POST['category']                 ?? 0);
+    $type       = (int) ($_POST['type']                     ?? 0);
+
+    if (!$title || $price <= 0) wp_send_json_error(['message' => 'Укажите название и цену.']);
+    if (!in_array($delivery, ['auto', 'manual'])) wp_send_json_error(['message' => 'Некорректный тип выдачи.']);
+    if ($delivery === 'auto' && !trim($keys)) wp_send_json_error(['message' => 'Для автовыдачи необходимо добавить ключи.']);
+    if (!$desc)   wp_send_json_error(['message' => 'Добавьте описание товара.']);
+    if (!$how_to) wp_send_json_error(['message' => 'Укажите способ получения.']);
+    if (!$category || !$type) wp_send_json_error(['message' => 'Выберите категорию и тип товара.']);
+    if (empty($_FILES['product_image']['tmp_name'])) wp_send_json_error(['message' => 'Загрузите изображение товара.']);
+
+    $allowed_types = ['image/png', 'image/webp', 'image/jpeg', 'image/jpg'];
+    $mime = mime_content_type($_FILES['product_image']['tmp_name']);
+    if (!in_array($mime, $allowed_types)) {
+        wp_send_json_error(['message' => 'Допустимые форматы: PNG, JPG, WEBP.']);
+    }
+
+    $post_id = wp_insert_post([
+        'post_type'   => 'products',
+        'post_status' => 'publish',
+        'post_title'  => $title,
+        'post_author' => $user_id,
+    ]);
+
+    if (is_wp_error($post_id)) wp_send_json_error(['message' => $post_id->get_error_message()]);
+
+    update_field('price',              $price,      $post_id);
+    update_field('price_sell',         $price_sale, $post_id);
+    update_field('delivery_type',      $delivery,   $post_id);
+    update_field('opisanie',           $desc,       $post_id);
+    update_field('sposob_polucheniya', $how_to,     $post_id);
+    update_field('product_seller_id',  $user_id,    $post_id);
+    update_field('is_active',          1,           $post_id);
+    if ($delivery === 'auto') update_field('secret_data', $keys, $post_id);
+
+    if ($category) wp_set_post_terms($post_id, [$category], 'group');
+    if ($type)     wp_set_post_terms($post_id, [$type],     'type-group');
+
+    require_once ABSPATH . 'wp-admin/includes/file.php';
+    require_once ABSPATH . 'wp-admin/includes/media.php';
+    require_once ABSPATH . 'wp-admin/includes/image.php';
+    $att = media_handle_upload('product_image', $post_id);
+    if (!is_wp_error($att)) set_post_thumbnail($post_id, $att);
+
+    wp_send_json_success(['id' => $post_id, 'message' => 'Товар создан.']);
 }
 
 add_action('wp_ajax_nopriv_mkt_check_invite', 'mkt_ajax_check_invite');

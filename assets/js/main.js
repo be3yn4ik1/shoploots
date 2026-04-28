@@ -177,39 +177,68 @@ document.addEventListener('DOMContentLoaded', function() {
     if (createProductForm) {
         mktAjax('mkt_get_categories', {}, function(res) {
             if (!res.success) return;
-            var catSel = document.getElementById('product-category');
+            var catSel  = document.getElementById('product-category');
             var typeSel = document.getElementById('product-type');
             res.data.categories.forEach(function(c) {
-                catSel.insertAdjacentHTML('beforeend', '<option value="' + c.id + '">' + c.name + '</option>');
+                catSel.insertAdjacentHTML('beforeend', '<option value="' + c.id + '">' + escHtml(c.name) + '</option>');
             });
             res.data.types.forEach(function(t) {
-                typeSel.insertAdjacentHTML('beforeend', '<option value="' + t.id + '">' + t.name + '</option>');
+                typeSel.insertAdjacentHTML('beforeend', '<option value="' + t.id + '">' + escHtml(t.name) + '</option>');
             });
         });
 
-        document.getElementById('delivery-type').addEventListener('change', function() {
-            var kg = document.getElementById('keys-group');
-            if (kg) kg.style.display = this.value === 'auto' ? '' : 'none';
-        });
+        var deliveryType = document.getElementById('delivery-type');
+        if (deliveryType) {
+            deliveryType.addEventListener('change', function() {
+                var kg = document.getElementById('keys-group');
+                if (kg) kg.style.display = this.value === 'auto' ? '' : 'none';
+            });
+            deliveryType.dispatchEvent(new Event('change'));
+        }
+
+        var imgInput = document.getElementById('product-image');
+        if (imgInput) {
+            imgInput.addEventListener('change', function() {
+                var file = this.files[0];
+                if (!file) return;
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var preview = document.getElementById('product-img-preview');
+                    var placeholder = document.getElementById('product-img-placeholder');
+                    preview.src = e.target.result;
+                    preview.style.display = '';
+                    if (placeholder) placeholder.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            });
+        }
 
         createProductForm.addEventListener('submit', function(e) {
             e.preventDefault();
             var btn = createProductForm.querySelector('[type=submit]');
             var err = document.getElementById('create-product-error');
             err.textContent = '';
-            var data = {};
-            new FormData(createProductForm).forEach(function(v, k){ data[k] = v; });
             mktSetLoading(btn, true);
-            mktRest('product', 'POST', data, function(res) {
-                mktSetLoading(btn, false);
-                if (res.id) {
-                    mktToast('Товар создан!', 'success');
-                    mktModal.close('modal-create-product');
-                    loadMyProducts();
-                } else {
-                    err.textContent = res.error || 'Ошибка.';
-                }
-            });
+            var fd = new FormData(createProductForm);
+            fd.append('action', 'mkt_create_product');
+            fd.append('nonce', MP.ajaxNonce);
+            fetch(MP.ajax, {method: 'POST', body: fd, credentials: 'same-origin'})
+                .then(function(r){ return r.json(); })
+                .then(function(res) {
+                    mktSetLoading(btn, false);
+                    if (res.success) {
+                        mktToast('Товар создан!', 'success');
+                        mktModal.close('modal-create-product');
+                        createProductForm.reset();
+                        var preview = document.getElementById('product-img-preview');
+                        var placeholder = document.getElementById('product-img-placeholder');
+                        if (preview)     { preview.src = ''; preview.style.display = 'none'; }
+                        if (placeholder) placeholder.style.display = '';
+                        loadMyProducts();
+                    } else {
+                        err.textContent = res.data.message || 'Ошибка.';
+                    }
+                });
         });
     }
 

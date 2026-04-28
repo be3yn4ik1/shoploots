@@ -83,7 +83,10 @@ get_header();
 
                 <div class="product-reviews" id="product-reviews" data-product="<?= $product_id ?>">
                     <h3>Отзывы</h3>
-                    <div id="reviews-list"><div class="loader-sm"></div></div>
+                    <div class="reviews-grid" id="reviews-grid"><div class="loader-sm"></div></div>
+                    <div id="reviews-more-wrap" style="display:none;text-align:center;margin-top:16px">
+                        <button class="btn-secondary" id="load-more-reviews">Показать ещё</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -122,17 +125,49 @@ get_header();
         <?php if ($seller): ?>
         <div class="card seller-card">
             <h4>Продавец</h4>
-            <div class="seller-info">
+            <a href="<?= esc_url(get_author_posts_url($seller_id)) ?>" class="seller-info seller-info-link">
                 <img src="<?= esc_url(mkt_get_avatar_url($seller_id)) ?>" width="48" alt="Аватар продавца" class="seller-avatar">
                 <div>
                     <div class="seller-name"><?= esc_html($seller->display_name) ?></div>
                     <div class="seller-meta">Продаж: <?= $seller_sales ?></div>
                     <div class="seller-meta">На сайте с <?= mysql2date('d.m.Y', $seller->user_registered) ?></div>
                 </div>
-            </div>
+                <svg viewBox="0 0 24 24" width="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:auto;flex-shrink:0;color:var(--primary)"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
         </div>
         <?php endif; ?>
     </aside>
+</div>
+
+<?php
+$first_category_slug = !empty($categories) ? $categories[0]->slug : '';
+$thumb_url = get_the_post_thumbnail_url($product_id, 'medium') ?: '';
+?>
+<script>
+window.MKT_PRODUCT = {
+    id:       <?= (int) $product_id ?>,
+    title:    <?= wp_json_encode(get_the_title()) ?>,
+    price:    <?= (float) $price ?>,
+    thumbnail:<?= wp_json_encode($thumb_url) ?>,
+    url:      <?= wp_json_encode(get_permalink()) ?>,
+    category: <?= wp_json_encode($first_category_slug) ?>,
+    sellerId: <?= (int) $seller_id ?>
+};
+</script>
+<div class="extra-blocks" style="max-width:1100px;margin:0 auto;padding:0 20px 32px">
+    <div class="extra-block" id="recently-viewed-section" style="display:none;margin-bottom:32px">
+        <h2 class="section-title">Вы смотрели</h2>
+        <div class="recently-viewed-scroll">
+            <div class="recently-viewed-grid" id="recently-viewed-grid"></div>
+        </div>
+    </div>
+
+    <div class="extra-block" id="similar-products-section">
+        <h2 class="section-title">Похожие товары</h2>
+        <div class="products-grid" id="similar-products-grid">
+            <div class="loader-sm" style="grid-column:1/-1"></div>
+        </div>
+    </div>
 </div>
 
 <div class="modal-overlay" id="modal-buy-confirm">

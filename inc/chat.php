@@ -59,13 +59,15 @@ function mkt_rest_get_messages(WP_REST_Request $req): WP_REST_Response {
 
     $messages = [];
     foreach ($rows as $row) {
+        $uid = (int) $row->user_id;
         $messages[] = [
             'id'         => (int) $row->id,
-            'user_id'    => (int) $row->user_id,
+            'user_id'    => $uid,
             'message'    => esc_html($row->message),
             'is_system'  => (bool) $row->is_system,
-            'avatar'     => $row->user_id ? mkt_get_avatar_url($row->user_id) : '',
-            'name'       => $row->user_id ? get_userdata($row->user_id)->display_name : 'Система',
+            'is_admin'   => $uid > 0 && mkt_is_admin($uid),
+            'avatar'     => $uid ? mkt_get_avatar_url($uid) : '',
+            'name'       => $uid ? get_userdata($uid)->display_name : 'Система',
             'time'       => wp_date('H:i', strtotime($row->created_at)),
             'created_at' => $row->created_at,
         ];

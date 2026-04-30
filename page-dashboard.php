@@ -210,6 +210,10 @@ get_header();
                         </div>
                     </div>
                     <div class="form-group">
+                        <label>Telegram</label>
+                        <input type="text" name="telegram" value="<?= esc_attr(get_field('telegram', "user_{$user_id}") ?: '') ?>" placeholder="@username">
+                    </div>
+                    <div class="form-group">
                         <label>Новый пароль (оставьте пустым чтобы не менять)</label>
                         <input type="password" name="password" placeholder="••••••••">
                     </div>

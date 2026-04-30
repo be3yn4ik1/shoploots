@@ -257,14 +257,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 mktSetLoading(confirmBuyBtn, false);
                 mktModal.close('modal-buy-confirm');
                 if (res.success) {
-                    if (res.data.type === 'auto') {
-                        document.getElementById('auto-key-value').textContent = res.data.key;
-                        document.getElementById('copy-key-btn').dataset.copy = res.data.key;
-                        mktModal.open('modal-auto-key');
-                    } else {
-                        mktToast(res.data.message, 'success');
-                        setTimeout(function(){ window.location.href = res.data.redirect; }, 800);
-                    }
+                    mktToast(res.data.message, 'success');
+                    setTimeout(function(){ window.location.href = res.data.redirect; }, 800);
                 } else {
                     mktToast(res.data.message, 'error');
                     if (res.data.need_deposit) mktModal.open('modal-deposit');
@@ -303,7 +297,9 @@ function renderOrdersTable(items) {
         html += '<td><strong>' + escHtml(o.amount_fmt) + '</strong></td>';
         html += '<td><span class="order-status-badge ' + cls + '">' + label + '</span></td>';
         html += '<td>' + escHtml(o.date) + '</td>';
-        html += '<td><a href="' + o.url + '" class="btn-sm btn-secondary">Открыть</a></td>';
+        var unread = o.unread_count || 0;
+        var badge  = unread > 0 ? '<span class="unread-badge">' + unread + '</span>' : '';
+        html += '<td><a href="' + o.url + '" class="btn-sm btn-secondary">Открыть' + badge + '</a></td>';
         html += '</tr>';
     });
     html += '</tbody></table>';

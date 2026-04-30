@@ -31,6 +31,8 @@ function initSellerGrid() {
 function renderSellerPagination(total, cur, paginEl, cb) {
     if (!paginEl) return;
     paginEl.innerHTML = '';
+    if (total <= 1) { paginEl.style.display = 'none'; return; }
+    paginEl.style.display = '';
     for (var i = 1; i <= total; i++) {
         (function (n) {
             var btn = document.createElement('button');
@@ -127,7 +129,8 @@ document.addEventListener('DOMContentLoaded', function () {
     function renderPagination(total, cur) {
         if (!paginEl) return;
         paginEl.innerHTML = '';
-        if (total <= 1) return;
+        if (total <= 1) { paginEl.style.display = 'none'; return; }
+        paginEl.style.display = '';
         for (var i = 1; i <= total; i++) {
             (function (n) {
                 var btn = document.createElement('button');

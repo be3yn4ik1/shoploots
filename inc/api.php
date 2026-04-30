@@ -297,9 +297,17 @@ function mkt_format_order(int $order_id): array {
 
     $delivered = '';
     $cur_user  = get_current_user_id();
-    if ($cur_user === $buyer_id && $status === 'completed') {
+    if ($cur_user === $buyer_id && in_array($status, ['completed', 'canceled'])) {
         $delivered = get_field('delivered_data', $order_id) ?? '';
     }
+
+    global $wpdb;
+    $chat_table   = $wpdb->prefix . 'mkt_chat';
+    $last_read    = (int) get_user_meta($cur_user, "_mkt_last_read_{$order_id}", true);
+    $unread_count = (int) $wpdb->get_var($wpdb->prepare(
+        "SELECT COUNT(*) FROM {$chat_table} WHERE order_id = %d AND id > %d AND user_id != %d AND user_id != 0",
+        $order_id, $last_read, $cur_user
+    ));
 
     return [
         'id'            => $order_id,
@@ -317,6 +325,7 @@ function mkt_format_order(int $order_id): array {
         'delivered'     => esc_html($delivered),
         'date'          => get_the_date('d.m.Y H:i', $order_id),
         'url'           => home_url("/orders/?id={$order_id}"),
+        'unread_count'  => $unread_count,
     ];
 }
 
@@ -512,6 +521,52 @@ function mkt_ajax_create_product(): void {
     if (!is_wp_error($att)) set_post_thumbnail($post_id, $att);
 
     wp_send_json_success(['id' => $post_id, 'message' => 'Товар создан.']);
+}
+
+add_action('wp_ajax_mkt_submit_review', 'mkt_ajax_submit_review');
+function mkt_ajax_submit_review(): void {
+    mkt_check_nonce();
+    mkt_require_login();
+
+    $order_id = (int) ($_POST['order_id'] ?? 0);
+    $rating   = min(5, max(1, (int) ($_POST['rating']  ?? 5)));
+    $text     = sanitize_textarea_field($_POST['text'] ?? '');
+    $user_id  = get_current_user_id();
+
+    if (!$order_id || !$text) wp_send_json_error(['message' => 'Напишите текст отзыва.']);
+
+    $buyer_id = (int) get_field('buyer_id', $order_id);
+    if ($buyer_id !== $user_id) wp_send_json_error(['message' => 'Только покупатель может оставить отзыв.']);
+
+    $status = get_field('order_status', $order_id);
+    if (!in_array($status, ['completed', 'canceled'])) {
+        wp_send_json_error(['message' => 'Нельзя оставить отзыв для активной сделки.']);
+    }
+
+    $existing = get_field('otzyv', $order_id);
+    if (!empty($existing['tekst_otzyva'])) {
+        wp_send_json_error(['message' => 'Вы уже оставили отзыв на этот заказ.']);
+    }
+
+    update_field('otzyv', ['tekst_otzyva' => $text, 'oczenka' => $rating], $order_id);
+    update_post_meta($order_id, 'tekst_otzyva', $text);
+
+    wp_send_json_success(['message' => 'Отзыв отправлен. Спасибо!']);
+}
+
+add_action('wp_ajax_mkt_mark_read', 'mkt_ajax_mark_read');
+function mkt_ajax_mark_read(): void {
+    check_ajax_referer('marketplace_nonce', 'nonce');
+    $order_id = (int) ($_POST['order_id'] ?? 0);
+    $msg_id   = (int) ($_POST['msg_id']   ?? 0);
+    $user_id  = get_current_user_id();
+    if ($order_id && $msg_id && $user_id) {
+        $current = (int) get_user_meta($user_id, "_mkt_last_read_{$order_id}", true);
+        if ($msg_id > $current) {
+            update_user_meta($user_id, "_mkt_last_read_{$order_id}", $msg_id);
+        }
+    }
+    wp_send_json_success();
 }
 
 add_action('wp_ajax_nopriv_mkt_check_invite', 'mkt_ajax_check_invite');

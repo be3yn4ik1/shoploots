@@ -35,7 +35,7 @@ get_header();
             </div>
             <?php if ($hold > 0): ?>
             <div class="balance-item hold">
-                <span class="balance-label">Hold</span>
+                <span class="balance-label">Ожидается</span>
                 <span class="balance-val"><?= esc_html(mkt_format_price($hold)) ?></span>
             </div>
             <?php endif; ?>

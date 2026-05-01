@@ -74,26 +74,15 @@ function mkt_ajax_buy(): void {
         $remaining = implode("\n", $keys);
         update_field('secret_data', $remaining, $product_id);
         update_field('delivered_data', $key_given, $order_id);
-        update_field('order_status', 'completed', $order_id);
 
-        $commission = round($amount * mkt_commission_rate(), 2);
-        $seller_gets = round($amount - $commission, 2);
-        mkt_subtract_hold($seller_id, $amount);
-        mkt_add_balance($seller_id, $seller_gets);
-        mkt_execute_referral_payouts($buyer_id, $amount);
-
-        $current_sales = (int) get_field('total_sales_count', $product_id);
-        update_field('total_sales_count', $current_sales + 1, $product_id);
-
-        mkt_chat_system_message($order_id, "Товар доставлен автоматически.\nВаш ключ: {$key_given}");
-        mkt_log('purchase', $buyer_id, 'Автовыдача завершена', ['order_id' => $order_id]);
+        mkt_chat_system_message($order_id, "Ключ доставлен автоматически.\nВаш ключ: {$key_given}\n\nПодтвердите получение после проверки.");
+        mkt_log('purchase', $buyer_id, 'Автовыдача, ожидание подтверждения покупателя', ['order_id' => $order_id]);
 
         wp_send_json_success([
             'type'     => 'auto',
             'order_id' => $order_id,
-            'key'      => $key_given,
             'redirect' => home_url("/orders/?id={$order_id}"),
-            'message'  => 'Покупка успешна! Ваш ключ доступен в заказе.',
+            'message'  => 'Ключ выдан! Проверьте заказ и подтвердите получение.',
         ]);
     }
 
@@ -129,10 +118,14 @@ function mkt_ajax_confirm_order(): void {
     $commission = round($amount * mkt_commission_rate(), 2);
     $seller_gets = round($amount - $commission, 2);
 
+    $product_id = (int) get_field('offer_id', $order_id);
     mkt_subtract_hold($seller_id, $amount);
     mkt_add_balance($seller_id, $seller_gets);
     update_field('order_status', 'completed', $order_id);
     mkt_execute_referral_payouts($buyer_id, $amount);
+    if ($product_id) {
+        update_field('total_sales_count', (int) get_field('total_sales_count', $product_id) + 1, $product_id);
+    }
     mkt_chat_system_message($order_id, 'Покупатель подтвердил получение. Средства переведены продавцу.');
     mkt_log('order_confirmed', $buyer_id, 'Сделка подтверждена', ['order_id' => $order_id]);
 

@@ -32,6 +32,7 @@ $reviews_q = new WP_Query([
     'fields'         => 'ids',
 ]);
 $total_reviews = $reviews_q->found_posts;
+$seller_rating = mkt_get_seller_rating($seller_id);
 
 get_header();
 ?>
@@ -48,7 +49,7 @@ get_header();
             <div style="display:flex;gap:24px;flex-wrap:wrap;font-size:.875rem;color:var(--text-secondary)">
                 <span>На сайте с <strong><?= mysql2date('d.m.Y', $seller->user_registered) ?></strong></span>
                 <span>Продаж: <strong><?= $total_sales ?></strong></span>
-                <span>Отзывов: <strong><?= $total_reviews ?></strong></span>
+                <span>Отзывов: <strong><?= $total_reviews ?></strong><?php if ($seller_rating['count'] > 0): ?> <?= mkt_stars_html($seller_rating['avg'], $seller_rating['count']) ?><?php endif; ?></span>
             </div>
         </div>
     </div>

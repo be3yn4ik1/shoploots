@@ -12,7 +12,8 @@ $balance   = mkt_get_balance($user_id);
 $hold      = mkt_get_hold($user_id);
 $ref_code  = get_field('ref_code', "user_{$user_id}") ?: '';
 $avatar    = mkt_get_avatar_url($user_id);
-$card      = get_field('withdrawal_card', "user_{$user_id}") ?: '';
+$card          = get_field('withdrawal_card', "user_{$user_id}") ?: '';
+$seller_rating = $role === 'seller' ? mkt_get_seller_rating($user_id) : ['count' => 0, 'avg' => 0];
 
 get_header();
 ?>
@@ -25,6 +26,9 @@ get_header();
             <div class="dash-user-info">
                 <strong><?= esc_html($user->display_name) ?></strong>
                 <span class="role-badge role-<?= esc_attr($role) ?>"><?= esc_html(mkt_role_label($user_id)) ?></span>
+                <?php if ($seller_rating['count'] > 0): ?>
+                <div style="font-size:.82rem;margin-top:2px"><?= mkt_stars_html($seller_rating['avg'], $seller_rating['count']) ?></div>
+                <?php endif; ?>
             </div>
         </div>
 

@@ -86,6 +86,46 @@ function mkt_format_price(float $amount): string {
     return number_format($amount, 2, '.', ' ') . ' ₽';
 }
 
+function mkt_get_product_rating(int $product_id): array {
+    global $wpdb;
+    $result = $wpdb->get_row($wpdb->prepare(
+        "SELECT COUNT(*) as cnt, ROUND(AVG(CAST(pm3.meta_value AS DECIMAL(3,1))), 1) as avg_rating
+         FROM {$wpdb->posts} p
+         JOIN {$wpdb->postmeta} pm1 ON pm1.post_id = p.ID AND pm1.meta_key = 'offer_id' AND pm1.meta_value = %s
+         JOIN {$wpdb->postmeta} pm2 ON pm2.post_id = p.ID AND pm2.meta_key = 'tekst_otzyva' AND pm2.meta_value != ''
+         JOIN {$wpdb->postmeta} pm3 ON pm3.post_id = p.ID AND pm3.meta_key = 'oczenka'
+         WHERE p.post_type = 'orders' AND p.post_status = 'publish'",
+        (string) $product_id
+    ));
+    $count = (int) ($result->cnt ?? 0);
+    return ['count' => $count, 'avg' => $count > 0 ? (float) $result->avg_rating : 0.0];
+}
+
+function mkt_get_seller_rating(int $seller_id): array {
+    global $wpdb;
+    $result = $wpdb->get_row($wpdb->prepare(
+        "SELECT COUNT(*) as cnt, ROUND(AVG(CAST(pm3.meta_value AS DECIMAL(3,1))), 1) as avg_rating
+         FROM {$wpdb->posts} p
+         JOIN {$wpdb->postmeta} pm1 ON pm1.post_id = p.ID AND pm1.meta_key = 'seller_id' AND pm1.meta_value = %s
+         JOIN {$wpdb->postmeta} pm2 ON pm2.post_id = p.ID AND pm2.meta_key = 'tekst_otzyva' AND pm2.meta_value != ''
+         JOIN {$wpdb->postmeta} pm3 ON pm3.post_id = p.ID AND pm3.meta_key = 'oczenka'
+         WHERE p.post_type = 'orders' AND p.post_status = 'publish'",
+        (string) $seller_id
+    ));
+    $count = (int) ($result->cnt ?? 0);
+    return ['count' => $count, 'avg' => $count > 0 ? (float) $result->avg_rating : 0.0];
+}
+
+function mkt_stars_html(float $avg, int $count): string {
+    if (!$count) return '';
+    $stars = '';
+    for ($i = 1; $i <= 5; $i++) {
+        $color = $i <= round($avg) ? '#0077ff' : '#d1d5db';
+        $stars .= '<span style="color:' . $color . '">★</span>';
+    }
+    return '<span class="star-display">' . $stars . ' <span class="star-display-meta">' . number_format($avg, 1) . ' (' . $count . ')</span></span>';
+}
+
 function mkt_log(string $type, int $user_id, string $message, array $data = []): void {
     global $wpdb;
     $wpdb->insert("{$wpdb->prefix}mkt_logs", [

@@ -15,9 +15,11 @@ if ($delivery === 'auto') {
     $keys_count = count(array_filter(array_map('trim', explode("\n", $data))));
 }
 
-$seller     = get_userdata($seller_id);
-$categories = get_the_terms($product_id, 'group') ?: [];
-$types      = get_the_terms($product_id, 'type-group') ?: [];
+$seller         = get_userdata($seller_id);
+$categories     = get_the_terms($product_id, 'group') ?: [];
+$types          = get_the_terms($product_id, 'type-group') ?: [];
+$product_rating = mkt_get_product_rating($product_id);
+$seller_rating  = mkt_get_seller_rating($seller_id);
 
 $seller_orders = new WP_Query([
     'post_type'   => 'orders',
@@ -116,6 +118,12 @@ get_header();
             <a href="<?= home_url('/auth/') ?>" class="btn-primary btn-full">Войти чтобы купить</a>
             <?php endif; ?>
 
+            <?php if ($product_rating['count'] > 0): ?>
+            <div class="product-buy-rating">
+                <?= mkt_stars_html($product_rating['avg'], $product_rating['count']) ?>
+            </div>
+            <?php endif; ?>
+
             <div class="escrow-notice">
                 <svg viewBox="0 0 24 24" width="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                 Безопасная сделка через Escrow
@@ -131,6 +139,9 @@ get_header();
                     <div class="seller-name"><?= esc_html($seller->display_name) ?></div>
                     <div class="seller-meta">Продаж: <?= $seller_sales ?></div>
                     <div class="seller-meta">На сайте с <?= mysql2date('d.m.Y', $seller->user_registered) ?></div>
+                    <?php if ($seller_rating['count'] > 0): ?>
+                    <div class="seller-meta" style="margin-top:4px"><?= mkt_stars_html($seller_rating['avg'], $seller_rating['count']) ?></div>
+                    <?php endif; ?>
                 </div>
                 <svg viewBox="0 0 24 24" width="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:auto;flex-shrink:0;color:var(--primary)"><polyline points="9 18 15 12 9 6"/></svg>
             </a>

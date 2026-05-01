@@ -114,7 +114,8 @@ function mkt_format_product(int $product_id): array {
         $data = get_field('secret_data', $product_id) ?? '';
         $keys_count = count(array_filter(array_map('trim', explode("\n", $data))));
     }
-    $thumb = get_the_post_thumbnail_url($product_id, 'medium') ?: '';
+    $thumb  = get_the_post_thumbnail_url($product_id, 'medium') ?: '';
+    $rating = mkt_get_product_rating($product_id);
 
     return [
         'id'           => $product_id,
@@ -134,6 +135,8 @@ function mkt_format_product(int $product_id): array {
         'categories'   => wp_get_post_terms($product_id, 'group', ['fields' => 'names']),
         'types'        => wp_get_post_terms($product_id, 'type-group', ['fields' => 'names']),
         'in_stock'     => $delivery !== 'auto' || $keys_count > 0,
+        'rating_avg'   => $rating['avg'],
+        'reviews_count'=> $rating['count'],
     ];
 }
 
@@ -548,8 +551,9 @@ function mkt_ajax_submit_review(): void {
         wp_send_json_error(['message' => 'Вы уже оставили отзыв на этот заказ.']);
     }
 
-    update_field('otzyv', ['tekst_otzyva' => $text, 'oczenka' => $rating], $order_id);
+    update_field('otzyv', ['tekst_otzyva' => $text, 'oczenka' => $rating, 'review_date' => current_time('mysql')], $order_id);
     update_post_meta($order_id, 'tekst_otzyva', $text);
+    update_post_meta($order_id, 'oczenka', $rating);
 
     wp_send_json_success(['message' => 'Отзыв отправлен. Спасибо!']);
 }

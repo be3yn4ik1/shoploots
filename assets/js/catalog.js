@@ -44,6 +44,16 @@ function renderSellerPagination(total, cur, paginEl, cb) {
     }
 }
 
+function renderStars(avg, count) {
+    if (!count) return '';
+    var html = '<div class="product-grid-rating">';
+    for (var i = 1; i <= 5; i++) {
+        html += '<span style="color:' + (i <= Math.round(avg) ? '#0077ff' : '#d1d5db') + ';font-size:.85rem">★</span>';
+    }
+    html += '<span class="product-grid-rating-meta">' + parseFloat(avg).toFixed(1) + ' (' + count + ')</span></div>';
+    return html;
+}
+
 function renderProductCard(p) {
     var priceHtml = p.price_sale > 0
         ? '<span class="p-old">' + p.price_base + ' ₽</span><span class="p-new">' + p.price_sale + ' ₽</span>'
@@ -57,12 +67,14 @@ function renderProductCard(p) {
     var sTag = p.delivery === 'auto'
         ? (p.in_stock ? '<span class="tag tag-stock">' + p.keys_count + ' шт</span>' : '<span class="tag tag-out">Нет</span>')
         : '';
+    var ratingHtml = renderStars(p.rating_avg || 0, p.reviews_count || 0);
     return '<a href="' + p.url + '" class="product-grid-card">' +
         '<div class="product-grid-img">' + thumb + '</div>' +
         '<div class="product-grid-body">' +
             '<div class="product-grid-title">' + escHtml(p.title) + '</div>' +
             '<div class="product-grid-tags">' + dTag + sTag + '</div>' +
             '<div class="product-grid-price">' + priceHtml + '</div>' +
+            ratingHtml +
         '</div>' +
         '<div class="product-grid-footer">' +
             '<span class="user-mini" style="font-size:.78rem">' +

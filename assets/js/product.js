@@ -36,7 +36,7 @@ function renderRecentlyViewed(currentId) {
     if (!section || !grid) return;
     try {
         var list = JSON.parse(localStorage.getItem('mkt_viewed') || '[]');
-        var filtered = list.filter(function (p) { return p.id !== currentId; }).slice(0, 12);
+        var filtered = list.filter(function (p) { return p.id !== currentId; }).slice(0, 8);
         if (!filtered.length) return;
         section.style.display = '';
         filtered.forEach(function (p) {
@@ -70,23 +70,7 @@ function loadSimilarProducts(category, currentId) {
         }
         grid.innerHTML = '';
         items.forEach(function (p) {
-            var priceHtml = p.price_sale > 0
-                ? '<span class="p-old">' + p.price_base + ' ₽</span><span class="p-new">' + p.price_sale + ' ₽</span>'
-                : '<span class="p-main">' + p.price + ' ₽</span>';
-            var thumb = p.thumbnail
-                ? '<img src="' + p.thumbnail + '" alt="" loading="lazy">'
-                : '<div style="width:100%;height:100%;background:#e8eaed;display:flex;align-items:center;justify-content:center;font-size:2rem">📦</div>';
-            var dTag = p.delivery === 'auto' ? '<span class="tag tag-auto">⚡ Авто</span>' : '<span class="tag tag-manual">👤 Ручная</span>';
-            grid.insertAdjacentHTML('beforeend',
-                '<a href="' + p.url + '" class="product-grid-card">' +
-                    '<div class="product-grid-img">' + thumb + '</div>' +
-                    '<div class="product-grid-body">' +
-                        '<div class="product-grid-title">' + escHtml(p.title) + '</div>' +
-                        '<div class="product-grid-tags">' + dTag + '</div>' +
-                        '<div class="product-grid-price">' + priceHtml + '</div>' +
-                    '</div>' +
-                '</a>'
-            );
+            grid.insertAdjacentHTML('beforeend', renderProductCard(p));
         });
     });
 }

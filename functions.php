@@ -96,6 +96,13 @@ add_filter('template_include', function ($tpl) {
         $t = get_template_directory() . '/single-products.php';
         if (file_exists($t)) return $t;
     }
+    if (!empty($_GET['id'])) {
+        $uri_path = strtok($_SERVER['REQUEST_URI'] ?? '', '?');
+        if (preg_match('#/orders/?$#', $uri_path)) {
+            $t = get_template_directory() . '/page-order.php';
+            if (file_exists($t)) return $t;
+        }
+    }
     return $tpl;
 });
 

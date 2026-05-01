@@ -39,7 +39,7 @@ get_header();
                 <span class="balance-val"><?= esc_html(mkt_format_price($hold)) ?></span>
             </div>
             <?php endif; ?>
-            <button class="btn-primary btn-sm" data-modal="deposit">Пополнить</button>
+            <button class="btn-primary btn-sm" data-modal="modal-deposit">Пополнить</button>
         </div>
 
         <nav class="dash-nav">
@@ -69,6 +69,10 @@ get_header();
                 <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 Профиль
             </a>
+            <a href="#" class="dash-nav-item dash-nav-logout" data-action="logout" style="margin-top:auto;color:var(--red)">
+                <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Выйти
+            </a>
         </nav>
     </aside>
 
@@ -77,7 +81,6 @@ get_header();
             <h2 class="section-title">Обзор</h2>
             <div class="stats-grid" id="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-icon">💰</div>
                     <div class="stat-info">
                         <div class="stat-val"><?= esc_html(mkt_format_price($balance)) ?></div>
                         <div class="stat-label">Баланс</div>
@@ -85,14 +88,12 @@ get_header();
                 </div>
                 <?php if ($role === 'seller'): ?>
                 <div class="stat-card" id="stat-sales">
-                    <div class="stat-icon">📦</div>
                     <div class="stat-info">
                         <div class="stat-val" data-stat="total_sales">—</div>
                         <div class="stat-label">Всего продаж</div>
                     </div>
                 </div>
                 <div class="stat-card" id="stat-earned">
-                    <div class="stat-icon">💵</div>
                     <div class="stat-info">
                         <div class="stat-val" data-stat="total_earned">—</div>
                         <div class="stat-label">Всего заработано</div>
@@ -100,7 +101,6 @@ get_header();
                 </div>
                 <?php else: ?>
                 <div class="stat-card">
-                    <div class="stat-icon">🛒</div>
                     <div class="stat-info">
                         <div class="stat-val" data-stat="total_orders">—</div>
                         <div class="stat-label">Покупок</div>
@@ -108,7 +108,6 @@ get_header();
                 </div>
                 <?php endif; ?>
                 <div class="stat-card">
-                    <div class="stat-icon">🎟</div>
                     <div class="stat-info">
                         <div class="stat-val"><?= esc_html($ref_code) ?></div>
                         <div class="stat-label">Ваш промокод</div>
@@ -129,7 +128,7 @@ get_header();
         <section class="dash-section" id="section-products">
             <div class="section-header">
                 <h2 class="section-title">Мои товары</h2>
-                <button class="btn-primary" data-modal="create-product">+ Создать товар</button>
+                <button class="btn-primary" data-modal="modal-create-product">+ Создать товар</button>
             </div>
             <div id="my-products-list"><div class="loader-sm"></div></div>
         </section>
@@ -211,6 +210,10 @@ get_header();
                         </div>
                     </div>
                     <div class="form-group">
+                        <label>Telegram</label>
+                        <input type="text" name="telegram" value="<?= esc_attr(get_field('telegram', "user_{$user_id}") ?: '') ?>" placeholder="@username">
+                    </div>
+                    <div class="form-group">
                         <label>Новый пароль (оставьте пустым чтобы не менять)</label>
                         <input type="password" name="password" placeholder="••••••••">
                     </div>
@@ -251,15 +254,26 @@ get_header();
             <button class="modal-close" data-close="modal-create-product">×</button>
         </div>
         <div class="modal-body">
-            <form id="create-product-form">
+            <form id="create-product-form" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label>Изображение товара <span class="required">*</span></label>
+                    <div class="img-upload-area" id="product-img-area">
+                        <input type="file" name="product_image" id="product-image" accept=".png,.webp,.jpg,.jpeg" required>
+                        <div class="img-upload-placeholder" id="product-img-placeholder">
+                            <svg viewBox="0 0 24 24" width="28" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            <span>Нажмите или перетащите фото (PNG, JPG, WEBP)</span>
+                        </div>
+                        <img id="product-img-preview" src="" alt="" style="display:none;width:100%;height:140px;object-fit:cover;border-radius:8px">
+                    </div>
+                </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Название товара</label>
+                        <label>Название товара <span class="required">*</span></label>
                         <input type="text" name="title" required placeholder="Например: Аккаунт Steam">
                     </div>
                     <div class="form-group">
-                        <label>Тип выдачи</label>
-                        <select name="delivery" id="delivery-type">
+                        <label>Тип выдачи <span class="required">*</span></label>
+                        <select name="delivery" id="delivery-type" required>
                             <option value="auto">Автовыдача</option>
                             <option value="manual">Ручная выдача</option>
                         </select>
@@ -267,39 +281,39 @@ get_header();
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Цена (₽)</label>
-                        <input type="number" name="price" min="0" step="0.01" required placeholder="100">
+                        <label>Цена (₽) <span class="required">*</span></label>
+                        <input type="number" name="price" min="1" step="0.01" required placeholder="100">
                     </div>
                     <div class="form-group">
-                        <label>Цена по акции (₽, оставьте 0 если нет)</label>
-                        <input type="number" name="price_sale" min="0" step="0.01" placeholder="0">
+                        <label>Цена по акции (₽, 0 = нет)</label>
+                        <input type="number" name="price_sale" min="0" step="0.01" placeholder="0" value="0">
                     </div>
                 </div>
                 <div class="form-group" id="keys-group">
-                    <label>Ключи / данные (каждый с новой строки)</label>
-                    <textarea name="keys" rows="6" placeholder="key1:value1&#10;key2:value2&#10;..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Описание</label>
-                    <textarea name="description" rows="3" placeholder="Описание товара..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Способ получения</label>
-                    <textarea name="how_to" rows="2" placeholder="Инструкция для покупателя..."></textarea>
+                    <label>Ключи / данные (каждый с новой строки) <span class="required">*</span></label>
+                    <textarea name="keys" rows="5" placeholder="key1:value1&#10;key2:value2&#10;..."></textarea>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Категория (игра)</label>
-                        <select name="category" id="product-category">
+                        <label>Категория (игра) <span class="required">*</span></label>
+                        <select name="category" id="product-category" required>
                             <option value="">Выберите категорию</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Тип товара</label>
-                        <select name="type" id="product-type">
+                        <label>Тип товара <span class="required">*</span></label>
+                        <select name="type" id="product-type" required>
                             <option value="">Выберите тип</option>
                         </select>
                     </div>
+                </div>
+                <div class="form-group">
+                    <label>Описание <span class="required">*</span></label>
+                    <textarea name="description" rows="3" required placeholder="Описание товара..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Способ получения <span class="required">*</span></label>
+                    <textarea name="how_to" rows="2" required placeholder="Инструкция для покупателя..."></textarea>
                 </div>
                 <div class="form-error" id="create-product-error"></div>
                 <button type="submit" class="btn-primary btn-full">Создать товар</button>

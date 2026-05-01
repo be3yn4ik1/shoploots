@@ -1,4 +1,79 @@
 document.addEventListener('DOMContentLoaded', function () {
+    initSellerGrid();
+});
+
+function initSellerGrid() {
+    var sellerGrid = document.getElementById('seller-products-grid');
+    if (!sellerGrid) return;
+    var sellerId   = sellerGrid.dataset.seller;
+    var paginEl    = document.getElementById('seller-pagination');
+    var countEl    = document.getElementById('seller-product-count');
+    var page = 1;
+
+    function load() {
+        sellerGrid.innerHTML = '<div class="loader-sm" style="grid-column:1/-1"></div>';
+        mktRest('seller/' + sellerId + '/products?page=' + page, 'GET', null, function (data) {
+            sellerGrid.innerHTML = '';
+            if (!data.items || !data.items.length) {
+                sellerGrid.innerHTML = '<p style="grid-column:1/-1;color:var(--text-secondary);padding:40px 0;text-align:center">Товаров нет</p>';
+                return;
+            }
+            if (countEl) countEl.textContent = 'Всего: ' + data.total;
+            data.items.forEach(function (p) {
+                sellerGrid.insertAdjacentHTML('beforeend', renderProductCard(p));
+            });
+            renderSellerPagination(data.total_pages, data.page, paginEl, function (n) { page = n; load(); });
+        });
+    }
+    load();
+}
+
+function renderSellerPagination(total, cur, paginEl, cb) {
+    if (!paginEl) return;
+    paginEl.innerHTML = '';
+    if (total <= 1) { paginEl.style.display = 'none'; return; }
+    paginEl.style.display = '';
+    for (var i = 1; i <= total; i++) {
+        (function (n) {
+            var btn = document.createElement('button');
+            btn.textContent = n;
+            if (n === cur) btn.classList.add('active');
+            btn.addEventListener('click', function () { cb(n); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+            paginEl.appendChild(btn);
+        })(i);
+    }
+}
+
+function renderProductCard(p) {
+    var priceHtml = p.price_sale > 0
+        ? '<span class="p-old">' + p.price_base + ' ₽</span><span class="p-new">' + p.price_sale + ' ₽</span>'
+        : '<span class="p-main">' + p.price + ' ₽</span>';
+    var thumb = p.thumbnail
+        ? '<img src="' + p.thumbnail + '" alt="" loading="lazy">'
+        : '<div style="width:100%;height:100%;background:#e8eaed;display:flex;align-items:center;justify-content:center;font-size:2rem">📦</div>';
+    var dTag = p.delivery === 'auto'
+        ? '<span class="tag tag-auto">⚡ Авто</span>'
+        : '<span class="tag tag-manual">👤 Ручная</span>';
+    var sTag = p.delivery === 'auto'
+        ? (p.in_stock ? '<span class="tag tag-stock">' + p.keys_count + ' шт</span>' : '<span class="tag tag-out">Нет</span>')
+        : '';
+    return '<a href="' + p.url + '" class="product-grid-card">' +
+        '<div class="product-grid-img">' + thumb + '</div>' +
+        '<div class="product-grid-body">' +
+            '<div class="product-grid-title">' + escHtml(p.title) + '</div>' +
+            '<div class="product-grid-tags">' + dTag + sTag + '</div>' +
+            '<div class="product-grid-price">' + priceHtml + '</div>' +
+        '</div>' +
+        '<div class="product-grid-footer">' +
+            '<span class="user-mini" style="font-size:.78rem">' +
+                '<img src="' + escHtml(p.seller_avatar) + '" width="18" style="border-radius:50%;height:18px;object-fit:cover"> ' +
+                escHtml(p.seller_name) +
+            '</span>' +
+        '</div>' +
+    '</a>';
+}
+
+document.addEventListener('DOMContentLoaded', function () {
     var grid    = document.getElementById('products-grid');
     if (!grid) return;
 
@@ -47,47 +122,15 @@ document.addEventListener('DOMContentLoaded', function () {
     function renderProducts(items) {
         grid.innerHTML = '';
         items.forEach(function (p) {
-            var priceHtml;
-            if (p.price_sale > 0) {
-                priceHtml = '<span class="p-old">' + p.price_base + ' ₽</span><span class="p-new">' + p.price_sale + ' ₽</span>';
-            } else {
-                priceHtml = '<span class="p-main">' + p.price + ' ₽</span>';
-            }
-            var thumb = p.thumbnail
-                ? '<img src="' + p.thumbnail + '" alt="" loading="lazy">'
-                : '<div style="width:100%;height:100%;background:#e8eaed;display:flex;align-items:center;justify-content:center;font-size:2.5rem">📦</div>';
-            var dTag = p.delivery === 'auto'
-                ? '<span class="tag tag-auto">⚡ Авто</span>'
-                : '<span class="tag tag-manual">👤 Ручная</span>';
-            var sTag = (p.delivery === 'auto')
-                ? (p.in_stock
-                    ? '<span class="tag tag-stock">' + p.keys_count + ' шт</span>'
-                    : '<span class="tag tag-out">Нет</span>')
-                : '';
-
-            grid.insertAdjacentHTML('beforeend',
-                '<a href="' + p.url + '" class="product-grid-card">' +
-                    '<div class="product-grid-img">' + thumb + '</div>' +
-                    '<div class="product-grid-body">' +
-                        '<div class="product-grid-title">' + escHtml(p.title) + '</div>' +
-                        '<div class="product-grid-tags">' + dTag + sTag + '</div>' +
-                        '<div class="product-grid-price">' + priceHtml + '</div>' +
-                    '</div>' +
-                    '<div class="product-grid-footer">' +
-                        '<span class="user-mini" style="font-size:.78rem">' +
-                            '<img src="' + escHtml(p.seller_avatar) + '" width="18" style="border-radius:50%;height:18px;object-fit:cover"> ' +
-                            escHtml(p.seller_name) +
-                        '</span>' +
-                    '</div>' +
-                '</a>'
-            );
+            grid.insertAdjacentHTML('beforeend', renderProductCard(p));
         });
     }
 
     function renderPagination(total, cur) {
         if (!paginEl) return;
         paginEl.innerHTML = '';
-        if (total <= 1) return;
+        if (total <= 1) { paginEl.style.display = 'none'; return; }
+        paginEl.style.display = '';
         for (var i = 1; i <= total; i++) {
             (function (n) {
                 var btn = document.createElement('button');

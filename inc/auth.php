@@ -119,10 +119,11 @@ function mkt_ajax_update_profile(): void {
     mkt_check_nonce();
     mkt_require_login();
 
-    $user_id = get_current_user_id();
-    $name    = sanitize_text_field($_POST['name'] ?? '');
-    $email   = sanitize_email($_POST['email'] ?? '');
-    $pass    = $_POST['password'] ?? '';
+    $user_id  = get_current_user_id();
+    $name     = sanitize_text_field($_POST['name'] ?? '');
+    $email    = sanitize_email($_POST['email'] ?? '');
+    $pass     = $_POST['password'] ?? '';
+    $telegram = sanitize_text_field($_POST['telegram'] ?? '');
 
     $update = ['ID' => $user_id];
     if ($name) $update['display_name'] = $name;
@@ -149,6 +150,10 @@ function mkt_ajax_update_profile(): void {
         if (!is_wp_error($att)) {
             update_field('user_avatar', $att, "user_{$user_id}");
         }
+    }
+
+    if ($telegram !== '') {
+        update_field('telegram', ltrim($telegram, '@'), "user_{$user_id}");
     }
 
     if ($pass) {

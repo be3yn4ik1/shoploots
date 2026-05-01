@@ -81,13 +81,19 @@ function mkt_ajax_buy(): void {
         mkt_subtract_hold($seller_id, $amount);
         mkt_add_balance($seller_id, $seller_gets);
         mkt_execute_referral_payouts($buyer_id, $amount);
+
+        $current_sales = (int) get_field('total_sales_count', $product_id);
+        update_field('total_sales_count', $current_sales + 1, $product_id);
+
+        mkt_chat_system_message($order_id, "Товар доставлен автоматически.\nВаш ключ: {$key_given}");
         mkt_log('purchase', $buyer_id, 'Автовыдача завершена', ['order_id' => $order_id]);
 
         wp_send_json_success([
-            'type'        => 'auto',
-            'order_id'    => $order_id,
-            'key'         => $key_given,
-            'message'     => 'Покупка успешна! Ваш ключ ниже.',
+            'type'     => 'auto',
+            'order_id' => $order_id,
+            'key'      => $key_given,
+            'redirect' => home_url("/orders/?id={$order_id}"),
+            'message'  => 'Покупка успешна! Ваш ключ доступен в заказе.',
         ]);
     }
 
@@ -243,6 +249,34 @@ function mkt_ajax_request_payout(): void {
     update_post_meta($payout_id, '_payout_available_at', date('Y-m-d H:i:s', strtotime('+48 hours')));
 
     wp_send_json_success(['message' => 'Заявка на вывод создана. Ожидайте 48 часов.']);
+}
+
+add_action('wp_ajax_mkt_admin_confirm_order', 'mkt_ajax_admin_confirm_order');
+function mkt_ajax_admin_confirm_order(): void {
+    mkt_check_nonce();
+    mkt_require_login();
+    $user_id  = get_current_user_id();
+    if (!mkt_is_admin($user_id)) wp_send_json_error(['message' => 'Нет доступа.']);
+    $order_id = (int) ($_POST['order_id'] ?? 0);
+    if (!$order_id) wp_send_json_error(['message' => 'Заказ не найден.']);
+    $status = get_field('order_status', $order_id);
+    if ($status !== 'arbitration') wp_send_json_error(['message' => 'Можно подтвердить только заказ в арбитраже.']);
+    mkt_arbitration_release($order_id);
+    wp_send_json_success(['message' => 'Заказ подтверждён. Средства переведены продавцу.']);
+}
+
+add_action('wp_ajax_mkt_admin_cancel_order', 'mkt_ajax_admin_cancel_order');
+function mkt_ajax_admin_cancel_order(): void {
+    mkt_check_nonce();
+    mkt_require_login();
+    $user_id  = get_current_user_id();
+    if (!mkt_is_admin($user_id)) wp_send_json_error(['message' => 'Нет доступа.']);
+    $order_id = (int) ($_POST['order_id'] ?? 0);
+    if (!$order_id) wp_send_json_error(['message' => 'Заказ не найден.']);
+    $status = get_field('order_status', $order_id);
+    if ($status !== 'arbitration') wp_send_json_error(['message' => 'Можно отменить только заказ в арбитраже.']);
+    mkt_arbitration_refund($order_id);
+    wp_send_json_success(['message' => 'Заказ отменён. Средства возвращены покупателю.']);
 }
 
 function mkt_process_payout_completion(int $payout_id): void {

@@ -151,6 +151,7 @@ get_header();
                     <div class="ref-promo-val"><?= esc_html($ref_code) ?></div>
                     <div class="ref-promo-link" id="ref-link-text"><?= esc_url(home_url('/auth/?ref=' . $ref_code)) ?></div>
                     <button class="btn-primary btn-sm copy-btn" data-copy="<?= esc_url(home_url('/auth/?ref=' . $ref_code)) ?>">Скопировать ссылку</button>
+                    <div class="ref-stat-row" style="margin-top:12px;font-size:.9rem">Приглашено рефералов: <strong id="ref-count-val">—</strong></div>
                 </div>
                 <div class="ref-levels">
                     <h4>Условия программы</h4>
@@ -189,6 +190,10 @@ get_header();
                     Средства поступают на реквизиты в течение 48 часов
                 </div>
                 <button class="btn-primary" id="payout-btn">Вывести средства</button>
+            </div>
+            <div class="payout-history-wrap" style="margin-top:24px">
+                <h3 style="font-size:1rem;font-weight:700;margin-bottom:12px">История заявок</h3>
+                <div id="payout-history-list"><div class="loader-sm"></div></div>
             </div>
         </section>
 
@@ -322,6 +327,53 @@ get_header();
                 <div class="form-error" id="create-product-error"></div>
                 <button type="submit" class="btn-primary btn-full">Создать товар</button>
             </form>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
+<?php if ($role === 'seller'): ?>
+<div class="modal-overlay" id="modal-edit-product">
+    <div class="modal-box modal-lg">
+        <div class="modal-header">
+            <h3>Редактировать товар</h3>
+            <button class="modal-close" data-close="modal-edit-product">×</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="edit-product-id">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Название товара <span class="required">*</span></label>
+                    <input type="text" id="edit-product-title" placeholder="Название">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Цена (₽) <span class="required">*</span></label>
+                    <input type="number" id="edit-product-price" min="1" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Цена по акции (₽, 0 = нет)</label>
+                    <input type="number" id="edit-product-price-sale" min="0" step="0.01" value="0">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Описание</label>
+                <textarea id="edit-product-desc" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Способ получения</label>
+                <textarea id="edit-product-howto" rows="2"></textarea>
+            </div>
+            <div class="form-group" id="edit-keys-group">
+                <label>Добавить ключи (каждый с новой строки)</label>
+                <textarea id="edit-product-keys" rows="4" placeholder="Новые ключи добавятся к существующим..."></textarea>
+            </div>
+            <div class="form-error" id="edit-product-error"></div>
+            <div class="modal-actions">
+                <button class="btn-secondary" data-close="modal-edit-product">Отмена</button>
+                <button class="btn-primary" id="save-product-btn">Сохранить</button>
+            </div>
         </div>
     </div>
 </div>

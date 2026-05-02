@@ -66,6 +66,12 @@ add_action('rest_api_init', function () {
         'callback'            => 'mkt_rest_get_stats',
         'permission_callback' => 'is_user_logged_in',
     ]);
+
+    register_rest_route('marketplace/v1', '/my-payouts', [
+        'methods'             => 'GET',
+        'callback'            => 'mkt_rest_get_my_payouts',
+        'permission_callback' => 'is_user_logged_in',
+    ]);
 });
 
 function mkt_rest_get_products(WP_REST_Request $req): WP_REST_Response {
@@ -229,6 +235,13 @@ function mkt_rest_update_product(WP_REST_Request $req): WP_REST_Response {
         update_field('secret_data', sanitize_textarea_field($req->get_param('keys')), $product_id);
     }
 
+    if ($req->get_param('add_keys') !== null) {
+        $existing = trim(get_field('secret_data', $product_id) ?? '');
+        $new_keys = trim(sanitize_textarea_field($req->get_param('add_keys')));
+        $merged   = $existing ? $existing . "\n" . $new_keys : $new_keys;
+        update_field('secret_data', $merged, $product_id);
+    }
+
     if ($req->get_param('is_active') !== null) {
         update_field('is_active', (int) $req->get_param('is_active'), $product_id);
     }
@@ -379,7 +392,38 @@ function mkt_rest_get_stats(WP_REST_Request $req): WP_REST_Response {
         $data['total_orders'] = $orders->found_posts;
     }
 
+    global $wpdb;
+    $data['ref_count'] = (int) $wpdb->get_var($wpdb->prepare(
+        "SELECT COUNT(*) FROM {$wpdb->usermeta} WHERE meta_key = 'referred_by_id' AND meta_value = %d",
+        $user_id
+    ));
+
     return new WP_REST_Response($data, 200);
+}
+
+function mkt_rest_get_my_payouts(WP_REST_Request $req): WP_REST_Response {
+    $user_id = get_current_user_id();
+    $query   = new WP_Query([
+        'post_type'      => 'payout',
+        'post_status'    => 'publish',
+        'author'         => $user_id,
+        'posts_per_page' => 30,
+        'orderby'        => 'date',
+        'order'          => 'DESC',
+    ]);
+    $items = [];
+    foreach ($query->posts as $post) {
+        $amount = (float) get_field('payout_amount', $post->ID);
+        $items[] = [
+            'id'         => $post->ID,
+            'amount'     => $amount,
+            'amount_fmt' => mkt_format_price($amount),
+            'method'     => get_field('payout_method', $post->ID) ?: '—',
+            'status'     => get_field('payout_status', $post->ID) ?: 'pending',
+            'date'       => get_the_date('d.m.Y H:i', $post->ID),
+        ];
+    }
+    return new WP_REST_Response(['items' => $items], 200);
 }
 
 add_action('wp_ajax_mkt_get_categories', 'mkt_ajax_get_categories');

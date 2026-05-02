@@ -98,8 +98,8 @@ get_header();
         <div class="card product-buy-card">
             <div class="product-price-block">
                 <?php if ($price_sale > 0): ?>
-                <span class="price-old"><?= esc_html(mkt_format_price($price_base)) ?></span>
                 <span class="price-new"><?= esc_html(mkt_format_price($price_sale)) ?></span>
+                <span class="price-old"><?= esc_html(mkt_format_price($price_base)) ?></span>
                 <span class="price-discount">-<?= round((1 - $price_sale / $price_base) * 100) ?>%</span>
                 <?php else: ?>
                 <span class="price-main"><?= esc_html(mkt_format_price($price_base)) ?></span>

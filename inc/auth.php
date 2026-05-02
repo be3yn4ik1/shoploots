@@ -98,9 +98,9 @@ function mkt_ajax_login(): void {
         wp_send_json_error(['message' => 'Неверный email или пароль.']);
     }
 
-    if (get_user_meta($user->ID, '_is_banned', true)) {
-        $reason = get_user_meta($user->ID, '_ban_reason', true);
-        wp_send_json_error(['message' => 'Аккаунт заблокирован. ' . esc_html($reason)]);
+    if (get_field('is_banned', 'user_' . $user->ID)) {
+        $reason = get_field('ban_reason', 'user_' . $user->ID) ?: '';
+        wp_send_json_error(['message' => 'Аккаунт заблокирован.' . ($reason ? ' ' . esc_html($reason) : '')]);
     }
 
     wp_set_auth_cookie($user->ID, true);

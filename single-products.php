@@ -138,7 +138,6 @@ get_header();
                 <div>
                     <div class="seller-name"><?= esc_html($seller->display_name) ?></div>
                     <div class="seller-meta">Продаж: <?= $seller_sales ?></div>
-                    <div class="seller-meta">На сайте с <?= mysql2date('d.m.Y', $seller->user_registered) ?></div>
                     <?php if ($seller_rating['count'] > 0): ?>
                     <div class="seller-meta" style="margin-top:4px"><?= mkt_stars_html($seller_rating['avg'], $seller_rating['count']) ?></div>
                     <?php endif; ?>

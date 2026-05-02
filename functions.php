@@ -127,3 +127,40 @@ add_action('acf/save_post', function ($post_id) {
         mkt_process_payout_completion($post_id);
     }
 }, 20);
+
+add_action('admin_menu', function () {
+    global $menu;
+    if (!current_user_can('manage_options')) return;
+    $count = (int) (new WP_Query([
+        'post_type'      => 'orders',
+        'post_status'    => 'publish',
+        'posts_per_page' => 1,
+        'fields'         => 'ids',
+        'meta_query'     => [['key' => 'order_status', 'value' => 'arbitration']],
+    ]))->found_posts;
+    if (!$count) return;
+    foreach ($menu as $key => $item) {
+        if (isset($item[5]) && $item[5] === 'menu-posts-orders') {
+            $menu[$key][0] .= ' <span class="awaiting-mod count-' . $count . '"><span class="pending-count">' . $count . '</span></span>';
+            break;
+        }
+    }
+});
+
+add_filter('post_class', function ($classes, $class, $post_id) {
+    if (get_post_type($post_id) !== 'orders') return $classes;
+    if (get_field('order_status', $post_id) === 'arbitration') $classes[] = 'order-arb-row';
+    return $classes;
+}, 10, 3);
+
+add_action('admin_head', function () {
+    $screen = get_current_screen();
+    if (!$screen || $screen->id !== 'edit-orders') return;
+    echo '<style>.order-arb-row .row-title,.order-arb-row .column-title strong a{color:#e64646!important;font-weight:700!important}</style>';
+});
+
+add_filter('post_row_actions', function ($actions, $post) {
+    if ($post->post_type !== 'orders') return $actions;
+    $actions['open_order'] = '<a href="' . esc_url(home_url('/orders/?id=' . $post->ID)) . '" target="_blank" style="color:#0077ff;font-weight:600">Открыть заказ ↗</a>';
+    return $actions;
+}, 10, 2);

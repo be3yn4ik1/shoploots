@@ -406,8 +406,8 @@ function mkt_rest_get_reviews(WP_REST_Request $req): WP_REST_Response {
         'meta_query'     => [
             'relation' => 'AND',
             ['key' => 'offer_id',     'value' => $product_id, 'compare' => '='],
-            ['key' => 'order_status', 'value' => 'completed'],
-            ['key' => 'tekst_otzyva', 'value' => '',          'compare' => '!='],
+            ['key' => 'order_status', 'value' => ['completed', 'canceled'], 'compare' => 'IN'],
+            ['key' => 'tekst_otzyva', 'value' => '',                       'compare' => '!='],
         ],
     ]);
 

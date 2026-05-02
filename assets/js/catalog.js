@@ -101,14 +101,24 @@ document.addEventListener('DOMContentLoaded', function () {
     var page = 1;
     var searchTimer;
 
+    var urlSearch = (new URLSearchParams(window.location.search)).get('s') || '';
+    if (urlSearch && searchEl) searchEl.value = urlSearch;
+
     mktAjax('mkt_get_categories', {}, function (res) {
-        if (!res.success) return;
-        res.data.categories.forEach(function (c) {
-            if (catSel) catSel.insertAdjacentHTML('beforeend', '<option value="' + escHtml(c.slug) + '">' + escHtml(c.name) + '</option>');
-        });
-        res.data.types.forEach(function (t) {
-            if (typeSel) typeSel.insertAdjacentHTML('beforeend', '<option value="' + escHtml(t.slug) + '">' + escHtml(t.name) + '</option>');
-        });
+        if (res.success) {
+            res.data.categories.forEach(function (c) {
+                if (catSel) catSel.insertAdjacentHTML('beforeend', '<option value="' + escHtml(c.slug) + '">' + escHtml(c.name) + '</option>');
+            });
+            res.data.types.forEach(function (t) {
+                if (typeSel) typeSel.insertAdjacentHTML('beforeend', '<option value="' + escHtml(t.slug) + '">' + escHtml(t.name) + '</option>');
+            });
+            if (window.MKT_TERM_TYPE === 'category' && window.MKT_TERM_SLUG && catSel) {
+                catSel.value = window.MKT_TERM_SLUG;
+            } else if (window.MKT_TERM_TYPE === 'type' && window.MKT_TERM_SLUG && typeSel) {
+                typeSel.value = window.MKT_TERM_SLUG;
+            }
+        }
+        load();
     });
 
     function load() {
@@ -173,6 +183,4 @@ document.addEventListener('DOMContentLoaded', function () {
             searchTimer = setTimeout(function () { page = 1; load(); }, 500);
         });
     }
-
-    load();
 });

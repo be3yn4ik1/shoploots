@@ -15,12 +15,17 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(function (data) {
                 if (!data.messages) return;
                 if (initial) chatEl.innerHTML = '';
+                var reloadNeeded = false;
                 data.messages.forEach(function (msg) {
                     appendMessage(msg);
                     if (msg.id > lastId) lastId = msg.id;
+                    if (!initial && msg.is_system && msg.message && msg.message.indexOf('Арбитраж завершён') !== -1) {
+                        reloadNeeded = true;
+                    }
                 });
                 if (initial || data.messages.length) scrollToBottom();
                 if (lastId > 0) markRead(lastId);
+                if (reloadNeeded) { clearInterval(polling); setTimeout(function () { location.reload(); }, 1500); }
             });
     }
 

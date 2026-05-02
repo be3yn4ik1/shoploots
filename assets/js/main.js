@@ -62,6 +62,35 @@ document.addEventListener('DOMContentLoaded', function() {
                         : data[key];
                 }
             });
+            var refCountEl = document.getElementById('ref-count-val');
+            if (refCountEl && data.ref_count !== undefined) {
+                refCountEl.textContent = data.ref_count;
+            }
+        });
+    }
+
+    var payoutHistoryList = document.getElementById('payout-history-list');
+    if (payoutHistoryList) {
+        mktRest('my-payouts', 'GET', null, function(data) {
+            var statusLabels = {pending: 'Ожидает', completed: 'Выплачено', rejected: 'Отклонено'};
+            var statusCls    = {pending: 'status-paid', completed: 'status-done', rejected: 'status-cancel'};
+            if (!data.items || !data.items.length) {
+                payoutHistoryList.innerHTML = '<div class="orders-empty">Заявок на вывод пока нет.</div>';
+                return;
+            }
+            var html = '<table class="orders-table"><thead><tr><th>Сумма</th><th>Реквизиты</th><th>Статус</th><th>Дата</th></tr></thead><tbody>';
+            data.items.forEach(function(w) {
+                var lbl = statusLabels[w.status] || w.status;
+                var cls = statusCls[w.status] || '';
+                html += '<tr>';
+                html += '<td style="white-space:nowrap"><strong>' + escHtml(w.amount_fmt) + '</strong></td>';
+                html += '<td>' + escHtml(w.method) + '</td>';
+                html += '<td><span class="order-status-badge ' + cls + '">' + lbl + '</span></td>';
+                html += '<td>' + escHtml(w.date) + '</td>';
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            payoutHistoryList.innerHTML = html;
         });
     }
 
@@ -267,6 +296,36 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    var saveProductBtn = document.getElementById('save-product-btn');
+    if (saveProductBtn) {
+        saveProductBtn.addEventListener('click', function() {
+            var modal     = document.getElementById('modal-edit-product');
+            var id        = modal.querySelector('#edit-product-id').value;
+            var title     = modal.querySelector('#edit-product-title').value.trim();
+            var price     = modal.querySelector('#edit-product-price').value;
+            var priceSale = modal.querySelector('#edit-product-price-sale').value || 0;
+            var desc      = modal.querySelector('#edit-product-desc').value.trim();
+            var howTo     = modal.querySelector('#edit-product-howto').value.trim();
+            var addKeys   = modal.querySelector('#edit-product-keys').value.trim();
+            var err       = document.getElementById('edit-product-error');
+            if (!title || !price) { err.textContent = 'Заполните название и цену.'; return; }
+            err.textContent = '';
+            mktSetLoading(saveProductBtn, true);
+            var body = {title: title, price: price, price_sale: priceSale, description: desc, how_to: howTo};
+            if (addKeys) body.add_keys = addKeys;
+            mktRest('product/' + id, 'PUT', body, function(res) {
+                mktSetLoading(saveProductBtn, false);
+                if (res.message) {
+                    mktToast(res.message, 'success');
+                    mktModal.close('modal-edit-product');
+                    loadMyProducts();
+                } else {
+                    err.textContent = res.error || 'Ошибка сохранения.';
+                }
+            });
+        });
+    }
+
     var logoutBtns = document.querySelectorAll('[data-action=logout]');
     logoutBtns.forEach(function(btn) {
         btn.addEventListener('click', function(e) {
@@ -287,14 +346,13 @@ function renderOrdersTable(items) {
         created:'status-created', paid:'status-paid', in_progress:'status-progress',
         completed:'status-done', arbitration:'status-arb', canceled:'status-cancel'
     };
-    var html = '<table class="orders-table"><thead><tr><th>#</th><th>Товар</th><th>Сумма</th><th>Статус</th><th>Дата</th><th></th></tr></thead><tbody>';
+    var html = '<table class="orders-table"><thead><tr><th>Товар</th><th>Сумма</th><th>Статус</th><th>Дата</th><th></th></tr></thead><tbody>';
     items.forEach(function(o) {
         var label = statusMap[o.status] || o.status;
         var cls   = classMap[o.status] || '';
         html += '<tr>';
-        html += '<td>' + o.id + '</td>';
         html += '<td>' + escHtml(o.product_title) + '</td>';
-        html += '<td><strong>' + escHtml(o.amount_fmt) + '</strong></td>';
+        html += '<td style="white-space:nowrap"><strong>' + escHtml(o.amount_fmt) + '</strong></td>';
         html += '<td><span class="order-status-badge ' + cls + '">' + label + '</span></td>';
         html += '<td>' + escHtml(o.date) + '</td>';
         var unread = o.unread_count || 0;
@@ -306,27 +364,30 @@ function renderOrdersTable(items) {
     return html;
 }
 
+var _myProductsCache = [];
+
 function loadMyProducts() {
     var list = document.getElementById('my-products-list');
     if (!list) return;
     list.innerHTML = '<div class="loader-sm"></div>';
     mktRest('my-products', 'GET', null, function(data) {
-        if (!data.items || !data.items.length) {
+        _myProductsCache = data.items || [];
+        if (!_myProductsCache.length) {
             list.innerHTML = '<div class="orders-empty">Товаров нет. Создайте первый!</div>';
             return;
         }
         var html = '<div class="products-manage-grid">';
-        data.items.forEach(function(p) {
+        _myProductsCache.forEach(function(p) {
             html += '<div class="product-manage-row" data-id="' + p.id + '">';
             html += '<div class="product-manage-info">';
-            html += '<div class="product-manage-title">' + escHtml(p.title) + '</div>';
+            html += '<div class="product-manage-title"><a href="' + escHtml(p.url) + '" target="_blank" class="product-manage-preview-link">' + escHtml(p.title) + '</a></div>';
             html += '<div class="product-manage-meta">';
             html += '<span class="tag ' + (p.delivery === 'auto' ? 'tag-auto' : 'tag-manual') + '">' + (p.delivery === 'auto' ? '⚡ Авто' : '👤 Ручная') + '</span>';
             html += '<span class="tag">' + escHtml(p.amount_fmt || p.price + ' ₽') + '</span>';
             if (p.delivery === 'auto') html += '<span class="product-keys-count">Ключей: <strong>' + p.keys_count + '</strong></span>';
             html += '</div></div>';
             html += '<div class="product-manage-actions">';
-            html += '<a href="' + p.url + '" class="btn-sm btn-secondary" target="_blank">Просмотр</a>';
+            html += '<button class="btn-sm btn-secondary" onclick="mktEditProduct(' + p.id + ')">Редактировать</button>';
             html += '<button class="btn-sm btn-danger" onclick="mktDeleteProduct(' + p.id + ')">Удалить</button>';
             html += '</div>';
             html += '</div>';
@@ -335,6 +396,28 @@ function loadMyProducts() {
         list.innerHTML = html;
     });
 }
+
+window.mktEditProduct = function(id) {
+    var p = null;
+    for (var i = 0; i < _myProductsCache.length; i++) {
+        if (_myProductsCache[i].id === id) { p = _myProductsCache[i]; break; }
+    }
+    if (!p) { mktToast('Товар не найден.', 'error'); return; }
+    var modal = document.getElementById('modal-edit-product');
+    if (!modal) return;
+    modal.querySelector('#edit-product-id').value         = p.id;
+    modal.querySelector('#edit-product-title').value      = p.title || '';
+    modal.querySelector('#edit-product-price').value      = p.price_base || '';
+    modal.querySelector('#edit-product-price-sale').value = p.price_sale || 0;
+    modal.querySelector('#edit-product-desc').value       = p.description || '';
+    modal.querySelector('#edit-product-howto').value      = (p.how_to || '').replace(/<br\s*\/?>/gi, '\n');
+    var keysGroup = modal.querySelector('#edit-keys-group');
+    if (keysGroup) keysGroup.style.display = p.delivery === 'auto' ? '' : 'none';
+    modal.querySelector('#edit-product-keys').value = '';
+    document.getElementById('edit-product-error').textContent = '';
+    mktModal.open('modal-edit-product');
+};
+
 
 window.mktDeleteProduct = function(id) {
     if (!confirm('Удалить товар?')) return;

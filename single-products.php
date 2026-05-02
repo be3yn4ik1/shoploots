@@ -98,8 +98,8 @@ get_header();
         <div class="card product-buy-card">
             <div class="product-price-block">
                 <?php if ($price_sale > 0): ?>
-                <span class="price-old"><?= esc_html(mkt_format_price($price_base)) ?></span>
                 <span class="price-new"><?= esc_html(mkt_format_price($price_sale)) ?></span>
+                <span class="price-old"><?= esc_html(mkt_format_price($price_base)) ?></span>
                 <span class="price-discount">-<?= round((1 - $price_sale / $price_base) * 100) ?>%</span>
                 <?php else: ?>
                 <span class="price-main"><?= esc_html(mkt_format_price($price_base)) ?></span>
@@ -138,7 +138,6 @@ get_header();
                 <div>
                     <div class="seller-name"><?= esc_html($seller->display_name) ?></div>
                     <div class="seller-meta">Продаж: <?= $seller_sales ?></div>
-                    <div class="seller-meta">На сайте с <?= mysql2date('d.m.Y', $seller->user_registered) ?></div>
                     <?php if ($seller_rating['count'] > 0): ?>
                     <div class="seller-meta" style="margin-top:4px"><?= mkt_stars_html($seller_rating['avg'], $seller_rating['count']) ?></div>
                     <?php endif; ?>

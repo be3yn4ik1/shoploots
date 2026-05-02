@@ -95,7 +95,7 @@ function loadReviews(append) {
         data.reviews.forEach(function (r) {
             var stars = '';
             for (var i = 1; i <= 5; i++) {
-                stars += '<span style="color:' + (i <= r.rating ? '#fbbf24' : '#d1d5db') + '">★</span>';
+                stars += '<span style="color:' + (i <= r.rating ? '#0077ff' : '#d1d5db') + '">★</span>';
             }
             grid.insertAdjacentHTML('beforeend',
                 '<div class="review-card">' +

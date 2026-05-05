@@ -566,6 +566,64 @@ function mkt_rest_get_seller_products(WP_REST_Request $req): WP_REST_Response {
     ], 200);
 }
 
+add_action('wp_ajax_mkt_update_product', 'mkt_ajax_update_product');
+function mkt_ajax_update_product(): void {
+    mkt_check_nonce();
+    mkt_require_login();
+
+    $user_id    = get_current_user_id();
+    $product_id = (int) ($_POST['product_id'] ?? 0);
+
+    if (!$product_id || get_post_type($product_id) !== 'products') {
+        wp_send_json_error(['message' => 'Товар не найден.']);
+    }
+
+    $seller_id = (int) get_field('product_seller_id', $product_id);
+    if ($seller_id !== $user_id && !mkt_is_admin($user_id)) {
+        wp_send_json_error(['message' => 'Нет доступа.']);
+    }
+
+    $title      = sanitize_text_field($_POST['title']       ?? '');
+    $price      = (float) ($_POST['price']                  ?? 0);
+    $price_sale = (float) ($_POST['price_sale']             ?? 0);
+    $desc       = sanitize_textarea_field($_POST['description'] ?? '');
+    $how_to     = sanitize_textarea_field($_POST['how_to']   ?? '');
+    $add_keys   = sanitize_textarea_field($_POST['add_keys'] ?? '');
+
+    if (!$title || $price <= 0) {
+        wp_send_json_error(['message' => 'Укажите название и цену.']);
+    }
+
+    wp_update_post(['ID' => $product_id, 'post_title' => $title]);
+    update_field('price',              $price,      $product_id);
+    update_field('price_sell',         $price_sale, $product_id);
+    update_field('opisanie',           $desc,       $product_id);
+    update_field('sposob_polucheniya', $how_to,     $product_id);
+
+    if ($add_keys) {
+        $existing = trim(get_field('secret_data', $product_id) ?? '');
+        $merged   = $existing ? $existing . "\n" . $add_keys : $add_keys;
+        update_field('secret_data', $merged, $product_id);
+    }
+
+    if (!empty($_FILES['product_image']['tmp_name'])) {
+        $allowed = ['image/png', 'image/webp', 'image/jpeg', 'image/jpg'];
+        $mime    = mime_content_type($_FILES['product_image']['tmp_name']);
+        if (!in_array($mime, $allowed)) {
+            wp_send_json_error(['message' => 'Допустимые форматы: PNG, JPG, WEBP.']);
+        }
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+        require_once ABSPATH . 'wp-admin/includes/media.php';
+        require_once ABSPATH . 'wp-admin/includes/image.php';
+        $att = media_handle_upload('product_image', $product_id);
+        if (!is_wp_error($att)) {
+            set_post_thumbnail($product_id, $att);
+        }
+    }
+
+    wp_send_json_success(['message' => 'Товар обновлён.']);
+}
+
 add_action('wp_ajax_mkt_create_product', 'mkt_ajax_create_product');
 function mkt_ajax_create_product(): void {
     check_ajax_referer('marketplace_nonce', 'nonce');

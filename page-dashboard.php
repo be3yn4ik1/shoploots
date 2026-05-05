@@ -351,6 +351,17 @@ get_header();
         </div>
         <div class="modal-body">
             <input type="hidden" id="edit-product-id">
+            <div class="form-group">
+                <label>Изображение товара (оставьте пустым, чтобы не менять)</label>
+                <div class="img-upload-area" id="edit-product-img-area">
+                    <input type="file" id="edit-product-image" accept=".png,.webp,.jpg,.jpeg">
+                    <div class="img-upload-placeholder" id="edit-product-img-placeholder">
+                        <svg viewBox="0 0 24 24" width="28" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        <span>Нажмите для замены фото (PNG, JPG, WEBP)</span>
+                    </div>
+                    <img id="edit-product-img-preview" src="" alt="" style="display:none;width:100%;height:130px;object-fit:cover;border-radius:8px">
+                </div>
+            </div>
             <div class="form-row">
                 <div class="form-group">
                     <label>Название товара <span class="required">*</span></label>

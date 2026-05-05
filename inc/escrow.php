@@ -76,7 +76,7 @@ function mkt_ajax_buy(): void {
         update_field('delivered_data', $key_given, $order_id);
 
         mkt_chat_system_message($order_id, "Ключ доставлен автоматически.\nВаш ключ: {$key_given}\n\nПодтвердите получение после проверки.");
-        mkt_log('purchase', $buyer_id, 'Автовыдача, ожидание подтверждения покупателя', ['order_id' => $order_id]);
+        mkt_log('purchase', $buyer_id, 'Покупка: ' . get_the_title($product_id), ['order_id' => $order_id, 'amount' => $amount, 'product' => get_the_title($product_id)]);
 
         wp_send_json_success([
             'type'     => 'auto',
@@ -87,7 +87,7 @@ function mkt_ajax_buy(): void {
     }
 
     mkt_chat_system_message($order_id, 'Сделка создана. Продавец должен передать товар.');
-    mkt_log('purchase', $buyer_id, 'Ручная выдача, ожидание продавца', ['order_id' => $order_id]);
+    mkt_log('purchase', $buyer_id, 'Покупка: ' . get_the_title($product_id), ['order_id' => $order_id, 'amount' => $amount, 'product' => get_the_title($product_id)]);
 
     wp_send_json_success([
         'type'     => 'manual',
@@ -119,15 +119,18 @@ function mkt_ajax_confirm_order(): void {
     $seller_gets = round($amount - $commission, 2);
 
     $product_id = (int) get_field('offer_id', $order_id);
+    $product_title = $product_id ? get_the_title($product_id) : '';
     mkt_subtract_hold($seller_id, $amount);
     mkt_add_balance($seller_id, $seller_gets);
     update_field('order_status', 'completed', $order_id);
-    mkt_execute_referral_payouts($buyer_id, $amount);
+    mkt_execute_referral_payouts($buyer_id,  $amount);
+    mkt_execute_referral_payouts($seller_id, $amount);
     if ($product_id) {
         update_field('total_sales_count', (int) get_field('total_sales_count', $product_id) + 1, $product_id);
     }
     mkt_chat_system_message($order_id, 'Покупатель подтвердил получение. Средства переведены продавцу.');
-    mkt_log('order_confirmed', $buyer_id, 'Сделка подтверждена', ['order_id' => $order_id]);
+    mkt_log('order_confirmed', $buyer_id, 'Покупка подтверждена: ' . $product_title, ['order_id' => $order_id, 'amount' => $amount]);
+    mkt_log('sale_completed',  $seller_id, 'Продажа завершена: '  . $product_title, ['order_id' => $order_id, 'amount' => $seller_gets]);
 
     wp_send_json_success(['message' => 'Сделка завершена. Средства переведены продавцу.']);
 }
@@ -179,7 +182,7 @@ function mkt_arbitration_refund(int $order_id): void {
     mkt_add_balance($buyer_id, $amount);
     update_field('order_status', 'canceled', $order_id);
     mkt_chat_system_message($order_id, 'Арбитраж завершён. Средства возвращены покупателю.');
-    mkt_log('arbitration_refund', 0, 'Возврат покупателю', ['order_id' => $order_id]);
+    mkt_log('arbitration_refund', $buyer_id, 'Возврат средств по арбитражу', ['order_id' => $order_id, 'amount' => $amount]);
 }
 
 function mkt_arbitration_release(int $order_id): void {
@@ -195,9 +198,10 @@ function mkt_arbitration_release(int $order_id): void {
     mkt_subtract_hold($seller_id, $amount);
     mkt_add_balance($seller_id, $seller_gets);
     update_field('order_status', 'completed', $order_id);
-    mkt_execute_referral_payouts($buyer_id, $amount);
+    mkt_execute_referral_payouts($buyer_id,  $amount);
+    mkt_execute_referral_payouts($seller_id, $amount);
     mkt_chat_system_message($order_id, 'Арбитраж завершён. Средства переведены продавцу.');
-    mkt_log('arbitration_release', 0, 'Выплата продавцу', ['order_id' => $order_id]);
+    mkt_log('arbitration_release', $seller_id, 'Выплата по арбитражу', ['order_id' => $order_id, 'amount' => $seller_gets]);
 }
 
 add_action('wp_ajax_mkt_request_payout', 'mkt_ajax_request_payout');
@@ -240,6 +244,7 @@ function mkt_ajax_request_payout(): void {
     update_field('payout_status',  'pending',  $payout_id);
     update_post_meta($payout_id, '_payout_user_id',      $user_id);
     update_post_meta($payout_id, '_payout_available_at', date('Y-m-d H:i:s', strtotime('+48 hours')));
+    mkt_log('payout_request', $user_id, 'Заявка на вывод средств', ['amount' => $amount, 'method' => $card, 'payout_id' => $payout_id]);
 
     wp_send_json_success(['message' => 'Заявка на вывод создана. Ожидайте 48 часов.']);
 }

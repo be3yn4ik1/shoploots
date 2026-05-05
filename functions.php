@@ -54,6 +54,75 @@ if (function_exists('acf_add_options_page')) {
     ]);
 }
 
+add_shortcode('mkt_products', function ($atts) {
+    $atts = shortcode_atts([
+        'category' => '',
+        'type'     => '',
+        'term_id'  => 0,
+        'taxonomy' => 'group',
+        'per_page' => 8,
+        'title'    => '',
+    ], $atts, 'mkt_products');
+
+    $category = sanitize_text_field($atts['category']);
+    $type     = sanitize_text_field($atts['type']);
+    $per_page = min(20, max(1, (int) $atts['per_page']));
+    $term_id  = (int) $atts['term_id'];
+    $taxonomy = sanitize_key($atts['taxonomy']);
+    $title    = sanitize_text_field($atts['title']);
+
+    if ($term_id > 0) {
+        $term = get_term($term_id, $taxonomy);
+        if (!is_wp_error($term) && $term) {
+            if ($taxonomy === 'type-group') {
+                $type = $term->slug;
+            } else {
+                $category = $term->slug;
+            }
+            if (!$title) $title = $term->name;
+        }
+    }
+
+    static $sc_id = 0;
+    $sc_id++;
+    $uid = 'mkt-pg-' . $sc_id;
+
+    $q_parts = ['page=1', 'per_page=' . $per_page];
+    if ($category) $q_parts[] = 'category=' . rawurlencode($category);
+    if ($type)     $q_parts[] = 'type='     . rawurlencode($type);
+    $q_str = implode('&', $q_parts);
+
+    ob_start();
+    if ($title): ?>
+    <h3 class="section-title" style="margin-bottom:16px"><?= esc_html($title) ?></h3>
+    <?php endif; ?>
+    <div class="products-grid" id="<?= esc_attr($uid) ?>">
+        <div class="loader-sm" style="grid-column:1/-1"></div>
+    </div>
+    <script>
+    (function () {
+        var el = document.getElementById('<?= esc_js($uid) ?>');
+        if (!el) return;
+        function load() {
+            if (typeof mktRest === 'undefined' || typeof renderProductCard === 'undefined') {
+                return setTimeout(load, 80);
+            }
+            mktRest('products?<?= esc_js($q_str) ?>', 'GET', null, function (data) {
+                el.innerHTML = '';
+                if (!data.items || !data.items.length) {
+                    el.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--text-secondary);padding:30px 0">Товаров нет</p>';
+                    return;
+                }
+                data.items.forEach(function (p) { el.insertAdjacentHTML('beforeend', renderProductCard(p)); });
+            });
+        }
+        if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', load); } else { load(); }
+    })();
+    </script>
+    <?php
+    return ob_get_clean();
+});
+
 add_action('wp_enqueue_scripts', function () {
     $v   = '1.0.5';
     $css = get_template_directory_uri() . '/assets/css/';

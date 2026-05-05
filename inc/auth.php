@@ -93,8 +93,16 @@ function mkt_ajax_login(): void {
         wp_send_json_error(['message' => 'Заполните все поля.']);
     }
 
+    $ip          = preg_replace('/[^a-f0-9:.]/i', '', $_SERVER['REMOTE_ADDR'] ?? '');
+    $attempt_key = 'mkt_lf_' . md5($ip . '|' . $email);
+    $attempts    = (int) get_transient($attempt_key);
+    if ($attempts >= 4) {
+        wp_send_json_error(['message' => 'Слишком много попыток входа. Подождите 15 минут.']);
+    }
+
     $user = get_user_by('email', $email);
     if (!$user || !wp_check_password($password, $user->user_pass, $user->ID)) {
+        set_transient($attempt_key, $attempts + 1, 15 * MINUTE_IN_SECONDS);
         wp_send_json_error(['message' => 'Неверный email или пароль.']);
     }
 
@@ -103,6 +111,7 @@ function mkt_ajax_login(): void {
         wp_send_json_error(['message' => 'Аккаунт заблокирован.' . ($reason ? ' ' . esc_html($reason) : '')]);
     }
 
+    delete_transient($attempt_key);
     wp_set_auth_cookie($user->ID, true);
     wp_send_json_success(['redirect' => home_url('/dashboard/')]);
 }

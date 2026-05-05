@@ -72,6 +72,12 @@ add_action('rest_api_init', function () {
         'callback'            => 'mkt_rest_get_my_payouts',
         'permission_callback' => 'is_user_logged_in',
     ]);
+
+    register_rest_route('marketplace/v1', '/balance-log', [
+        'methods'             => 'GET',
+        'callback'            => 'mkt_rest_get_balance_log',
+        'permission_callback' => 'is_user_logged_in',
+    ]);
 });
 
 function mkt_rest_get_products(WP_REST_Request $req): WP_REST_Response {
@@ -79,7 +85,7 @@ function mkt_rest_get_products(WP_REST_Request $req): WP_REST_Response {
     $type     = sanitize_text_field($req->get_param('type') ?? '');
     $search   = sanitize_text_field($req->get_param('search') ?? '');
     $page     = max(1, (int) ($req->get_param('page') ?? 1));
-    $per_page = 20;
+    $per_page = min(20, max(1, (int) ($req->get_param('per_page') ?? 20)));
 
     $args = [
         'post_type'      => 'products',
@@ -424,6 +430,60 @@ function mkt_rest_get_my_payouts(WP_REST_Request $req): WP_REST_Response {
         ];
     }
     return new WP_REST_Response(['items' => $items], 200);
+}
+
+function mkt_rest_get_balance_log(WP_REST_Request $req): WP_REST_Response {
+    global $wpdb;
+    $user_id  = get_current_user_id();
+    $page     = max(1, (int) ($req->get_param('page') ?? 1));
+    $per_page = 30;
+    $offset   = ($page - 1) * $per_page;
+    $table    = $wpdb->prefix . 'mkt_logs';
+
+    $total = (int) $wpdb->get_var($wpdb->prepare(
+        "SELECT COUNT(*) FROM {$table} WHERE user_id = %d", $user_id
+    ));
+    $rows = $wpdb->get_results($wpdb->prepare(
+        "SELECT * FROM {$table} WHERE user_id = %d ORDER BY created_at DESC LIMIT %d OFFSET %d",
+        $user_id, $per_page, $offset
+    ));
+
+    $type_meta = [
+        'deposit'            => ['label' => 'Пополнение',           'sign' => '+', 'cls' => 'log-green'],
+        'purchase'           => ['label' => 'Покупка',              'sign' => '−', 'cls' => 'log-red'  ],
+        'order_confirmed'    => ['label' => 'Покупка подтверждена', 'sign' => '−', 'cls' => 'log-red'  ],
+        'sale_completed'     => ['label' => 'Продажа',              'sign' => '+', 'cls' => 'log-green'],
+        'referral_payout'    => ['label' => 'Реф. бонус',          'sign' => '+', 'cls' => 'log-green'],
+        'arbitration_refund' => ['label' => 'Возврат (арбитраж)',  'sign' => '+', 'cls' => 'log-green'],
+        'arbitration_release'=> ['label' => 'Продажа (арбитраж)', 'sign' => '+', 'cls' => 'log-green'],
+        'payout_request'     => ['label' => 'Вывод средств',       'sign' => '−', 'cls' => 'log-red'  ],
+        'payout_completed'   => ['label' => 'Вывод выполнен',      'sign' => '−', 'cls' => 'log-red'  ],
+    ];
+
+    $items = [];
+    foreach ($rows as $row) {
+        $data   = json_decode($row->data ?? '{}', true) ?: [];
+        $amount = isset($data['amount']) ? (float) $data['amount'] : null;
+        $meta   = $type_meta[$row->type] ?? ['label' => $row->type, 'sign' => '', 'cls' => ''];
+        $items[] = [
+            'id'      => (int) $row->id,
+            'type'    => $row->type,
+            'label'   => $meta['label'],
+            'sign'    => $meta['sign'],
+            'cls'     => $meta['cls'],
+            'message' => $row->message,
+            'amount'  => $amount,
+            'amount_fmt' => $amount !== null ? mkt_format_price($amount) : null,
+            'date'    => wp_date('d.m.Y H:i', strtotime($row->created_at)),
+        ];
+    }
+
+    return new WP_REST_Response([
+        'items' => $items,
+        'total' => $total,
+        'pages' => $per_page > 0 ? (int) ceil($total / $per_page) : 1,
+        'page'  => $page,
+    ], 200);
 }
 
 add_action('wp_ajax_mkt_get_categories', 'mkt_ajax_get_categories');

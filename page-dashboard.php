@@ -61,6 +61,10 @@ get_header();
                 <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                 <?= $role === 'seller' ? 'Продажи' : 'Покупки' ?>
             </a>
+            <a href="#" class="dash-nav-item" data-section="balance">
+                <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                История баланса
+            </a>
             <a href="#" class="dash-nav-item" data-section="referrals">
                 <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 Рефералы
@@ -143,6 +147,12 @@ get_header();
             <div id="orders-list"><div class="loader-sm"></div></div>
         </section>
 
+        <section class="dash-section" id="section-balance">
+            <h2 class="section-title">История баланса</h2>
+            <div id="balance-log-list"><div class="loader-sm"></div></div>
+            <div id="balance-log-pagination" style="display:none;margin-top:16px;display:flex;gap:8px;flex-wrap:wrap"></div>
+        </section>
+
         <section class="dash-section" id="section-referrals">
             <h2 class="section-title">Реферальная программа</h2>
             <div class="ref-card card">
@@ -156,7 +166,7 @@ get_header();
                 <div class="ref-levels">
                     <h4>Условия программы</h4>
                     <?php
-                    $levels = [1 => 5, 2 => 1, 3 => 1, 4 => 1, 5 => 0.5, 6 => 0.5];
+                    $levels = [1 => 5, 2 => 1, 3 => 1, 4 => 1, 5 => 1];
                     foreach ($levels as $lvl => $pct):
                         $real_pct = mkt_get_system_option("ref_l{$lvl}", $pct);
                     ?>

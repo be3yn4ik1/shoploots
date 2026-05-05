@@ -119,6 +119,60 @@ document.addEventListener('DOMContentLoaded', function() {
     var myProductsList = document.getElementById('my-products-list');
     if (myProductsList) loadMyProducts();
 
+    var balanceLogList = document.getElementById('balance-log-list');
+    if (balanceLogList) {
+        var balanceLogPage = 1;
+        var balancePaginEl = document.getElementById('balance-log-pagination');
+
+        function loadBalanceLog(page) {
+            balanceLogPage = page;
+            balanceLogList.innerHTML = '<div class="loader-sm"></div>';
+            mktRest('balance-log?page=' + page, 'GET', null, function(data) {
+                if (!data.items || !data.items.length) {
+                    balanceLogList.innerHTML = '<div class="orders-empty">Операций пока нет.</div>';
+                    if (balancePaginEl) balancePaginEl.style.display = 'none';
+                    return;
+                }
+                var html = '';
+                data.items.forEach(function(entry) {
+                    var amountHtml = '';
+                    if (entry.amount_fmt) {
+                        amountHtml = '<span class="blog-amount ' + (entry.cls || '') + '">' +
+                            (entry.sign ? entry.sign + ' ' : '') + entry.amount_fmt + '</span>';
+                    }
+                    html += '<div class="balance-log-row">' +
+                        '<div class="balance-log-main">' +
+                            '<span class="balance-log-label">' + escHtml(entry.label) + '</span>' +
+                            '<span class="balance-log-msg">' + escHtml(entry.message) + '</span>' +
+                        '</div>' +
+                        '<div class="balance-log-right">' +
+                            amountHtml +
+                            '<span class="balance-log-date">' + escHtml(entry.date) + '</span>' +
+                        '</div>' +
+                    '</div>';
+                });
+                balanceLogList.innerHTML = html;
+
+                if (balancePaginEl && data.pages > 1) {
+                    balancePaginEl.style.display = '';
+                    balancePaginEl.innerHTML = '';
+                    for (var p = 1; p <= data.pages; p++) {
+                        (function(n) {
+                            var btn = document.createElement('button');
+                            btn.textContent = n;
+                            btn.className = 'btn-sm ' + (n === page ? 'btn-primary' : 'btn-secondary');
+                            btn.addEventListener('click', function() { loadBalanceLog(n); });
+                            balancePaginEl.appendChild(btn);
+                        })(p);
+                    }
+                } else if (balancePaginEl) {
+                    balancePaginEl.style.display = 'none';
+                }
+            });
+        }
+        loadBalanceLog(1);
+    }
+
     var saveCardBtn = document.getElementById('save-card-btn');
     if (saveCardBtn) {
         saveCardBtn.addEventListener('click', function() {

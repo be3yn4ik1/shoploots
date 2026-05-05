@@ -137,7 +137,7 @@ function mkt_log(string $type, int $user_id, string $message, array $data = []):
     ]);
 }
 
-add_action('after_switch_theme', function () {
+function mkt_create_logs_table(): void {
     global $wpdb;
     $charset = $wpdb->get_charset_collate();
     require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -151,5 +151,14 @@ add_action('after_switch_theme', function () {
         PRIMARY KEY (id),
         KEY user_id (user_id),
         KEY type (type)
-    ) $charset;");
+    ) {$charset};");
+}
+
+add_action('after_switch_theme', 'mkt_create_logs_table');
+
+// Создать таблицу если её нет (например, тема была активна до добавления этого кода)
+add_action('init', function () {
+    if (get_option('mkt_logs_table_v1')) return;
+    mkt_create_logs_table();
+    update_option('mkt_logs_table_v1', '1');
 });

@@ -446,7 +446,7 @@ function mkt_rest_get_balance_log(WP_REST_Request $req): WP_REST_Response {
     $rows = $wpdb->get_results($wpdb->prepare(
         "SELECT * FROM {$table} WHERE user_id = %d ORDER BY created_at DESC LIMIT %d OFFSET %d",
         $user_id, $per_page, $offset
-    ));
+    )) ?: [];
 
     $type_meta = [
         'deposit'            => ['label' => 'Пополнение',           'sign' => '+', 'cls' => 'log-green'],

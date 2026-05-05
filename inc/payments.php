@@ -55,6 +55,13 @@ add_action('init', function () {
         exit;
     }
 
+    // Idempotency: reject duplicate callbacks atomically
+    $done_key = '_fk_done_' . $order_id;
+    if (!add_user_meta($user_id, $done_key, 1, true)) {
+        echo 'YES';
+        exit;
+    }
+
     $meta_key = '_fk_pending_order_' . $order_id;
     $expected = get_user_meta($user_id, $meta_key, true);
     if (!$expected) {

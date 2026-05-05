@@ -9,6 +9,13 @@ function mkt_ajax_buy(): void {
     $product_id = (int) ($_POST['product_id'] ?? 0);
     $buyer_id   = get_current_user_id();
 
+    $rate_key = 'mkt_buy_rate_' . $buyer_id;
+    $count    = (int) get_transient($rate_key);
+    if ($count >= 5) {
+        wp_send_json_error(['message' => 'Слишком много запросов. Подождите немного.']);
+    }
+    set_transient($rate_key, $count + 1, MINUTE_IN_SECONDS);
+
     if (!$product_id || get_post_type($product_id) !== 'products') {
         wp_send_json_error(['message' => 'Товар не найден.']);
     }
@@ -123,8 +130,7 @@ function mkt_ajax_confirm_order(): void {
     mkt_subtract_hold($seller_id, $amount);
     mkt_add_balance($seller_id, $seller_gets);
     update_field('order_status', 'completed', $order_id);
-    mkt_execute_referral_payouts($buyer_id,  $amount);
-    mkt_execute_referral_payouts($seller_id, $amount);
+    mkt_execute_referral_payouts($buyer_id, $amount);
     if ($product_id) {
         update_field('total_sales_count', (int) get_field('total_sales_count', $product_id) + 1, $product_id);
     }
@@ -198,8 +204,7 @@ function mkt_arbitration_release(int $order_id): void {
     mkt_subtract_hold($seller_id, $amount);
     mkt_add_balance($seller_id, $seller_gets);
     update_field('order_status', 'completed', $order_id);
-    mkt_execute_referral_payouts($buyer_id,  $amount);
-    mkt_execute_referral_payouts($seller_id, $amount);
+    mkt_execute_referral_payouts($buyer_id, $amount);
     mkt_chat_system_message($order_id, 'Арбитраж завершён. Средства переведены продавцу.');
     mkt_log('arbitration_release', $seller_id, 'Выплата по арбитражу', ['order_id' => $order_id, 'amount' => $seller_gets]);
 }

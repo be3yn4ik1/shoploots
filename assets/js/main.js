@@ -352,6 +352,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
     var saveProductBtn = document.getElementById('save-product-btn');
     if (saveProductBtn) {
+        var editImgInput = document.getElementById('edit-product-image');
+        if (editImgInput) {
+            editImgInput.addEventListener('change', function() {
+                var file = this.files[0];
+                if (!file) return;
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var preview = document.getElementById('edit-product-img-preview');
+                    var placeholder = document.getElementById('edit-product-img-placeholder');
+                    preview.src = e.target.result;
+                    preview.style.display = '';
+                    if (placeholder) placeholder.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
         saveProductBtn.addEventListener('click', function() {
             var modal     = document.getElementById('modal-edit-product');
             var id        = modal.querySelector('#edit-product-id').value;
@@ -361,22 +378,40 @@ document.addEventListener('DOMContentLoaded', function() {
             var desc      = modal.querySelector('#edit-product-desc').value.trim();
             var howTo     = modal.querySelector('#edit-product-howto').value.trim();
             var addKeys   = modal.querySelector('#edit-product-keys').value.trim();
+            var imgFile   = modal.querySelector('#edit-product-image').files[0];
             var err       = document.getElementById('edit-product-error');
             if (!title || !price) { err.textContent = 'Заполните название и цену.'; return; }
             err.textContent = '';
             mktSetLoading(saveProductBtn, true);
-            var body = {title: title, price: price, price_sale: priceSale, description: desc, how_to: howTo};
-            if (addKeys) body.add_keys = addKeys;
-            mktRest('product/' + id, 'PUT', body, function(res) {
-                mktSetLoading(saveProductBtn, false);
-                if (res.message) {
-                    mktToast(res.message, 'success');
-                    mktModal.close('modal-edit-product');
-                    loadMyProducts();
-                } else {
-                    err.textContent = res.error || 'Ошибка сохранения.';
-                }
-            });
+
+            var fd = new FormData();
+            fd.append('action',      'mkt_update_product');
+            fd.append('nonce',       MP.ajaxNonce);
+            fd.append('product_id',  id);
+            fd.append('title',       title);
+            fd.append('price',       price);
+            fd.append('price_sale',  priceSale);
+            fd.append('description', desc);
+            fd.append('how_to',      howTo);
+            if (addKeys) fd.append('add_keys', addKeys);
+            if (imgFile) fd.append('product_image', imgFile);
+
+            fetch(MP.ajax, {method: 'POST', body: fd, credentials: 'same-origin'})
+                .then(function(r) { return r.json(); })
+                .then(function(res) {
+                    mktSetLoading(saveProductBtn, false);
+                    if (res.success) {
+                        mktToast(res.data.message, 'success');
+                        mktModal.close('modal-edit-product');
+                        loadMyProducts();
+                    } else {
+                        err.textContent = res.data.message || 'Ошибка сохранения.';
+                    }
+                })
+                .catch(function() {
+                    mktSetLoading(saveProductBtn, false);
+                    mktToast('Ошибка сети.', 'error');
+                });
         });
     }
 
@@ -467,7 +502,19 @@ window.mktEditProduct = function(id) {
     modal.querySelector('#edit-product-howto').value      = (p.how_to || '').replace(/<br\s*\/?>/gi, '\n');
     var keysGroup = modal.querySelector('#edit-keys-group');
     if (keysGroup) keysGroup.style.display = p.delivery === 'auto' ? '' : 'none';
-    modal.querySelector('#edit-product-keys').value = '';
+    modal.querySelector('#edit-product-keys').value  = '';
+    modal.querySelector('#edit-product-image').value = '';
+    var imgPreview  = modal.querySelector('#edit-product-img-preview');
+    var imgPlaceholder = modal.querySelector('#edit-product-img-placeholder');
+    if (p.thumbnail) {
+        imgPreview.src          = p.thumbnail;
+        imgPreview.style.display = '';
+        if (imgPlaceholder) imgPlaceholder.style.display = 'none';
+    } else {
+        imgPreview.src           = '';
+        imgPreview.style.display = 'none';
+        if (imgPlaceholder) imgPlaceholder.style.display = '';
+    }
     document.getElementById('edit-product-error').textContent = '';
     mktModal.open('modal-edit-product');
 };

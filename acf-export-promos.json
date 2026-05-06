@@ -1,0 +1,92 @@
+[
+    {
+        "key": "group_promo_codes",
+        "title": "Промокод",
+        "fields": [
+            {
+                "key": "field_promo_amount",
+                "label": "Сумма пополнения (₽)",
+                "name": "promo_amount",
+                "aria-label": "",
+                "type": "number",
+                "instructions": "Сколько рублей зачислить на баланс при активации промокода",
+                "required": true,
+                "conditional_logic": false,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "default_value": "",
+                "min": 1,
+                "max": "",
+                "placeholder": "",
+                "step": 1,
+                "prepend": "",
+                "append": "₽"
+            },
+            {
+                "key": "field_promo_limit",
+                "label": "Лимит активаций",
+                "name": "promo_limit",
+                "aria-label": "",
+                "type": "number",
+                "instructions": "Максимальное число пользователей, которые могут использовать этот промокод. 0 = безлимит",
+                "required": false,
+                "conditional_logic": false,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "default_value": 0,
+                "min": 0,
+                "max": "",
+                "placeholder": "0",
+                "step": 1,
+                "prepend": "",
+                "append": ""
+            },
+            {
+                "key": "field_promo_used_count",
+                "label": "Использовано раз",
+                "name": "promo_used_count",
+                "aria-label": "",
+                "type": "number",
+                "instructions": "Обновляется автоматически. Не редактируйте вручную.",
+                "required": false,
+                "conditional_logic": false,
+                "wrapper": {
+                    "width": "",
+                    "class": "",
+                    "id": ""
+                },
+                "default_value": 0,
+                "min": 0,
+                "max": "",
+                "placeholder": "",
+                "step": 1,
+                "prepend": "",
+                "append": ""
+            }
+        ],
+        "location": [
+            [
+                {
+                    "param": "post_type",
+                    "operator": "==",
+                    "value": "promo_code"
+                }
+            ]
+        ],
+        "menu_order": 0,
+        "position": "normal",
+        "style": "default",
+        "label_placement": "top",
+        "instruction_placement": "label",
+        "hide_on_screen": [],
+        "active": true,
+        "description": "",
+        "show_in_rest": false
+    }
+]

@@ -426,6 +426,24 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    var applyPromoBtn = document.getElementById('apply-promo-btn');
+    if (applyPromoBtn) {
+        applyPromoBtn.addEventListener('click', function () {
+            var code = (document.getElementById('promo-code-input').value || '').trim().toUpperCase();
+            if (!code) { mktToast('Введите промокод.', 'error'); return; }
+            mktSetLoading(applyPromoBtn, true);
+            mktAjax('mkt_apply_promo', { code: code }, function (res) {
+                mktSetLoading(applyPromoBtn, false);
+                if (res.success) {
+                    mktToast(res.data.message, 'success');
+                    document.getElementById('promo-code-input').value = '';
+                } else {
+                    mktToast(res.data.message, 'error');
+                }
+            });
+        });
+    }
+
     var logoutBtns = document.querySelectorAll('[data-action=logout]');
     logoutBtns.forEach(function(btn) {
         btn.addEventListener('click', function(e) {

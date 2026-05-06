@@ -127,6 +127,21 @@ function mkt_stars_html(float $avg, int $count): string {
     return '<span class="star-display">' . $stars . ' <span class="star-display-meta">' . number_format($avg, 1) . ' (' . $count . ')</span></span>';
 }
 
+function mkt_is_online(int $user_id): bool {
+    $last = (int) get_user_meta($user_id, 'last_seen', true);
+    return $last && (time() - $last) < 5 * MINUTE_IN_SECONDS;
+}
+
+function mkt_last_seen_label(int $user_id): string {
+    $last = (int) get_user_meta($user_id, 'last_seen', true);
+    if (!$last) return '';
+    $diff = time() - $last;
+    if ($diff < 300)   return 'Онлайн';
+    if ($diff < 3600)  return 'Был(а) ' . round($diff / 60) . ' мин. назад';
+    if ($diff < 86400) return 'Был(а) ' . round($diff / 3600) . ' ч. назад';
+    return 'Был(а) ' . round($diff / 86400) . ' д. назад';
+}
+
 function mkt_log(string $type, int $user_id, string $message, array $data = []): void {
     global $wpdb;
     $wpdb->insert("{$wpdb->prefix}mkt_logs", [

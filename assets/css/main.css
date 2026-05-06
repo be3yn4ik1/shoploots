@@ -272,6 +272,28 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='
 .seller-info-link{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;border-radius:var(--radius-sm);padding:8px;margin:-8px;transition:background .2s}
 .seller-info-link:hover{background:#f5f7fa}
 
+/* Карточка-обёртка с сердечком */
+.product-card-wrap{position:relative}
+.fav-btn{position:absolute;top:8px;right:8px;z-index:2;width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,.9);backdrop-filter:blur(4px);cursor:pointer;display:flex;align-items:center;justify-content:center;color:#e64646;transition:background .2s,transform .15s;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.fav-btn:hover{background:#fff;transform:scale(1.1)}
+.fav-btn svg{pointer-events:none}
+.fav-btn.fav-active{background:#fff0f0}
+
+/* Кнопка "В избранное" на странице товара */
+.btn-fav-product{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:10px 16px;border:1px solid var(--border);border-radius:var(--radius-sm);background:#fff;color:var(--text-secondary);font-family:inherit;font-size:.875rem;font-weight:600;cursor:pointer;transition:border-color .2s,color .2s,background .2s;margin-top:8px}
+.btn-fav-product:hover{border-color:#e64646;color:#e64646;background:#fff5f5}
+.btn-fav-product.fav-active{border-color:#e64646;color:#e64646;background:#fff0f0}
+.btn-fav-product svg{pointer-events:none}
+
+/* Онлайн-статус */
+.online-status{display:inline-flex;align-items:center;gap:5px;font-size:.78rem}
+.online-dot{width:8px;height:8px;border-radius:50%;background:#ccc;flex-shrink:0;display:inline-block}
+.online-status.is-online .online-dot{background:#4caf50;box-shadow:0 0 0 2px rgba(76,175,80,.25)}
+.online-status.is-online{color:#2e7d32}
+
+/* Реферальные уровни — ширина метки */
+.ref-level-num{width:auto;min-width:140px}
+
 .img-upload-area{border:2px dashed var(--border);border-radius:var(--radius-sm);padding:20px;cursor:pointer;transition:border-color .2s;position:relative;text-align:center}
 .img-upload-area:hover{border-color:var(--primary)}
 .img-upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}

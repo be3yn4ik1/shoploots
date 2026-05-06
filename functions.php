@@ -1,7 +1,7 @@
 <?php
 defined('ABSPATH') || exit;
 
-foreach (['roles', 'helpers', 'auth', 'api', 'escrow', 'chat', 'referrals', 'payments'] as $_f) {
+foreach (['roles', 'helpers', 'auth', 'api', 'escrow', 'chat', 'referrals', 'payments', 'emails', 'favorites', 'promos'] as $_f) {
     require_once get_template_directory() . "/inc/{$_f}.php";
 }
 
@@ -147,6 +147,7 @@ add_action('wp_enqueue_scripts', function () {
     $rc = get_field('recaptcha_site_key', 'option');
     if ($rc) wp_enqueue_script('recaptcha', 'https://www.google.com/recaptcha/api.js', [], null, true);
 
+    $fav_ids = is_user_logged_in() ? mkt_get_favorites(get_current_user_id()) : [];
     wp_localize_script('mkt-main', 'MP', [
         'ajax'         => admin_url('admin-ajax.php'),
         'rest'         => rest_url('marketplace/v1/'),
@@ -158,8 +159,44 @@ add_action('wp_enqueue_scripts', function () {
         'authUrl'      => home_url('/auth/'),
         'dashUrl'      => home_url('/dashboard/'),
         'catalogUrl'   => home_url('/catalog/'),
+        'favIds'       => $fav_ids,
+        'favUrl'       => home_url('/favorites/'),
     ]);
 });
+
+// Обновляем last_seen для авторизованных пользователей (не чаще 1 раза в минуту)
+add_action('wp_loaded', function () {
+    if (!is_user_logged_in() || is_admin() || wp_doing_ajax()) return;
+    $uid  = get_current_user_id();
+    $last = (int) get_user_meta($uid, 'last_seen', true);
+    if (time() - $last > 60) {
+        update_user_meta($uid, 'last_seen', time());
+    }
+});
+
+// SEO мета-теги для страниц товаров
+add_action('wp_head', function () {
+    if (!is_singular('products')) return;
+    $id   = get_the_ID();
+    $title = get_the_title($id);
+    $raw   = wp_strip_all_tags(get_field('opisanie', $id) ?? '');
+    $desc  = mb_substr($raw, 0, 155);
+    $img   = get_the_post_thumbnail_url($id, 'large') ?: '';
+    $url   = get_permalink($id);
+    printf('<meta property="og:type" content="product">' . "\n");
+    printf('<meta property="og:title" content="%s">' . "\n",        esc_attr($title));
+    printf('<meta property="og:url" content="%s">' . "\n",          esc_url($url));
+    if ($desc) {
+        printf('<meta name="description" content="%s">' . "\n",     esc_attr($desc));
+        printf('<meta property="og:description" content="%s">' . "\n", esc_attr($desc));
+    }
+    if ($img) {
+        printf('<meta property="og:image" content="%s">' . "\n",    esc_url($img));
+        printf('<meta name="twitter:card" content="summary_large_image">' . "\n");
+        printf('<meta name="twitter:image" content="%s">' . "\n",   esc_url($img));
+    }
+    printf('<meta name="twitter:title" content="%s">' . "\n",       esc_attr($title));
+}, 1);
 
 add_filter('template_include', function ($tpl) {
     if (is_singular('products')) {

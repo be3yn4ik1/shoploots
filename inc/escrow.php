@@ -84,6 +84,7 @@ function mkt_ajax_buy(): void {
 
         mkt_chat_system_message($order_id, "Ключ доставлен автоматически.\nВаш ключ: {$key_given}\n\nПодтвердите получение после проверки.");
         mkt_log('purchase', $buyer_id, 'Покупка: ' . get_the_title($product_id), ['order_id' => $order_id, 'amount' => $amount, 'product' => get_the_title($product_id)]);
+        mkt_email_order_created($order_id);
 
         wp_send_json_success([
             'type'     => 'auto',
@@ -95,6 +96,7 @@ function mkt_ajax_buy(): void {
 
     mkt_chat_system_message($order_id, 'Сделка создана. Продавец должен передать товар.');
     mkt_log('purchase', $buyer_id, 'Покупка: ' . get_the_title($product_id), ['order_id' => $order_id, 'amount' => $amount, 'product' => get_the_title($product_id)]);
+    mkt_email_order_created($order_id);
 
     wp_send_json_success([
         'type'     => 'manual',
@@ -137,6 +139,7 @@ function mkt_ajax_confirm_order(): void {
     mkt_chat_system_message($order_id, 'Покупатель подтвердил получение. Средства переведены продавцу.');
     mkt_log('order_confirmed', $buyer_id, 'Покупка подтверждена: ' . $product_title, ['order_id' => $order_id, 'amount' => $amount]);
     mkt_log('sale_completed',  $seller_id, 'Продажа завершена: '  . $product_title, ['order_id' => $order_id, 'amount' => $seller_gets]);
+    mkt_email_order_completed($order_id);
 
     wp_send_json_success(['message' => 'Сделка завершена. Средства переведены продавцу.']);
 }

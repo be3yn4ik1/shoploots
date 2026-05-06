@@ -99,6 +99,9 @@ function mkt_rest_send_message(WP_REST_Request $req): WP_REST_Response {
     ]);
 
     $msg_id = $wpdb->insert_id;
+
+    mkt_email_chat_message($order_id, $user_id);
+
     return new WP_REST_Response([
         'id'        => $msg_id,
         'user_id'   => $user_id,

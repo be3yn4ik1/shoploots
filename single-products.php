@@ -118,6 +118,22 @@ get_header();
             <a href="<?= home_url('/auth/') ?>" class="btn-primary btn-full">Войти чтобы купить</a>
             <?php endif; ?>
 
+            <?php if (is_user_logged_in()): ?>
+            <?php $is_fav = in_array($product_id, mkt_get_favorites(get_current_user_id()), true); ?>
+            <button class="btn-fav-product <?= $is_fav ? 'fav-active' : '' ?>"
+                    onclick="mktToggleFav(event, <?= $product_id ?>)">
+                <svg viewBox="0 0 24 24" width="16" fill="<?= $is_fav ? 'currentColor' : 'none' ?>" stroke="currentColor" stroke-width="2">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+                <span id="fav-label"><?= $is_fav ? 'В избранном' : 'В избранное' ?></span>
+            </button>
+            <?php endif; ?>
+
+            <button class="btn-secondary btn-full copy-btn" data-copy="<?= esc_attr(get_permalink()) ?>" style="margin-top:8px">
+                <svg viewBox="0 0 24 24" width="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                Скопировать ссылку
+            </button>
+
             <?php if ($product_rating['count'] > 0): ?>
             <div class="product-buy-rating">
                 <?= mkt_stars_html($product_rating['avg'], $product_rating['count']) ?>
@@ -140,6 +156,11 @@ get_header();
                     <div class="seller-meta">Продаж: <?= $seller_sales ?></div>
                     <?php if ($seller_rating['count'] > 0): ?>
                     <div class="seller-meta" style="margin-top:4px"><?= mkt_stars_html($seller_rating['avg'], $seller_rating['count']) ?></div>
+                    <?php endif; ?>
+                    <?php $online_label = mkt_last_seen_label($seller_id); if ($online_label): ?>
+                    <div class="seller-meta online-status <?= mkt_is_online($seller_id) ? 'is-online' : '' ?>" style="margin-top:4px">
+                        <span class="online-dot"></span><?= esc_html($online_label) ?>
+                    </div>
                     <?php endif; ?>
                 </div>
                 <svg viewBox="0 0 24 24" width="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:auto;flex-shrink:0;color:var(--primary)"><polyline points="9 18 15 12 9 6"/></svg>

@@ -267,6 +267,13 @@ get_header();
                 <?php endforeach; ?>
             </div>
             <button class="btn-primary btn-full" id="deposit-btn">Перейти к оплате</button>
+            <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+                <label style="display:block;font-size:.82rem;font-weight:600;margin-bottom:6px;color:var(--text-secondary)">Промокод</label>
+                <div style="display:flex;gap:8px">
+                    <input type="text" id="promo-code-input" placeholder="ABCDE12345" style="text-transform:uppercase">
+                    <button class="btn-secondary" id="apply-promo-btn" style="white-space:nowrap">Применить</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>

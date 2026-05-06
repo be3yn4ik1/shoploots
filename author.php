@@ -5,7 +5,7 @@ $seller = get_queried_object();
 if (!$seller instanceof WP_User) { wp_redirect(home_url('/catalog/')); exit; }
 
 $seller_id = $seller->ID;
-if (mkt_get_role($seller_id) !== 'seller') { wp_redirect(home_url('/catalog/')); exit; }
+if (mkt_is_admin($seller_id)) { wp_redirect(home_url('/catalog/')); exit; }
 
 $avatar = mkt_get_avatar_url($seller_id);
 $orders_q = new WP_Query([
@@ -44,12 +44,17 @@ get_header();
         <div style="flex:1;min-width:0">
             <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px">
                 <h1 style="font-size:1.5rem;font-weight:700;margin:0"><?= esc_html($seller->display_name) ?></h1>
-                <span class="role-badge role-seller">Продавец</span>
+                <span class="role-badge role-buyer">Пользователь</span>
             </div>
             <div style="display:flex;gap:24px;flex-wrap:wrap;font-size:.875rem;color:var(--text-secondary)">
                 <span>На сайте с <strong><?= mysql2date('d.m.Y', $seller->user_registered) ?></strong></span>
                 <span>Продаж: <strong><?= $total_sales ?></strong></span>
                 <span>Отзывов: <strong><?= $total_reviews ?></strong><?php if ($seller_rating['count'] > 0): ?> <?= mkt_stars_html($seller_rating['avg'], $seller_rating['count']) ?><?php endif; ?></span>
+                <?php $online_label = mkt_last_seen_label($seller_id); if ($online_label): ?>
+                <span class="online-status <?= mkt_is_online($seller_id) ? 'is-online' : '' ?>">
+                    <span class="online-dot"></span><?= esc_html($online_label) ?>
+                </span>
+                <?php endif; ?>
             </div>
         </div>
     </div>

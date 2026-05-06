@@ -68,7 +68,14 @@ function renderProductCard(p) {
         ? (p.in_stock ? '<span class="tag tag-stock">' + p.keys_count + ' шт</span>' : '<span class="tag tag-out">Нет</span>')
         : '';
     var ratingHtml = renderStars(p.rating_avg || 0, p.reviews_count || 0);
-    return '<a href="' + p.url + '" class="product-grid-card">' +
+    var isFav = window.MP && MP.favIds && MP.favIds.indexOf(p.id) !== -1;
+    var heartBtn = (window.MP && MP.loggedIn)
+        ? '<button class="fav-btn' + (isFav ? ' fav-active' : '') + '" onclick="mktToggleFav(event,' + p.id + ')" aria-label="В избранное">' +
+            '<svg viewBox="0 0 24 24" width="15" fill="' + (isFav ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>' +
+          '</button>'
+        : '';
+    return '<div class="product-card-wrap">' + heartBtn +
+        '<a href="' + p.url + '" class="product-grid-card">' +
         '<div class="product-grid-img">' + thumb + '</div>' +
         '<div class="product-grid-body">' +
             '<div class="product-grid-title">' + escHtml(p.title) + '</div>' +
@@ -82,8 +89,38 @@ function renderProductCard(p) {
                 escHtml(p.seller_name) +
             '</span>' +
         '</div>' +
-    '</a>';
+        '</a></div>';
 }
+
+window.mktToggleFav = function (e, productId) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!window.MP || !MP.loggedIn) { window.location.href = MP.authUrl; return; }
+    mktAjax('mkt_toggle_favorite', { product_id: productId }, function (res) {
+        if (!res.success) return;
+        var active = res.data.active;
+        document.querySelectorAll('.fav-btn[onclick*=",' + productId + ')"]').forEach(function (btn) {
+            btn.classList.toggle('fav-active', active);
+            var svg = btn.querySelector('svg');
+            if (svg) svg.setAttribute('fill', active ? 'currentColor' : 'none');
+        });
+        if (!MP.favIds) MP.favIds = [];
+        if (active) {
+            if (MP.favIds.indexOf(productId) === -1) MP.favIds.push(productId);
+        } else {
+            MP.favIds = MP.favIds.filter(function (id) { return id !== productId; });
+        }
+        // Обновить кнопку на странице товара
+        var btn = document.querySelector('.btn-fav-product');
+        if (btn) {
+            btn.classList.toggle('fav-active', active);
+            var lbl = document.getElementById('fav-label');
+            if (lbl) lbl.textContent = active ? 'В избранном' : 'В избранное';
+            var svg = btn.querySelector('svg');
+            if (svg) svg.setAttribute('fill', active ? 'currentColor' : 'none');
+        }
+    });
+};
 
 document.addEventListener('DOMContentLoaded', function () {
     var grid    = document.getElementById('products-grid');

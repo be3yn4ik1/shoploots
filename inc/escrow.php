@@ -130,7 +130,7 @@ function mkt_ajax_confirm_order(): void {
     mkt_subtract_hold($seller_id, $amount);
     mkt_add_balance($seller_id, $seller_gets);
     update_field('order_status', 'completed', $order_id);
-    mkt_execute_referral_payouts($buyer_id, $amount);
+    mkt_execute_referral_payouts($buyer_id, $seller_id, $amount);
     if ($product_id) {
         update_field('total_sales_count', (int) get_field('total_sales_count', $product_id) + 1, $product_id);
     }
@@ -204,7 +204,7 @@ function mkt_arbitration_release(int $order_id): void {
     mkt_subtract_hold($seller_id, $amount);
     mkt_add_balance($seller_id, $seller_gets);
     update_field('order_status', 'completed', $order_id);
-    mkt_execute_referral_payouts($buyer_id, $amount);
+    mkt_execute_referral_payouts($buyer_id, $seller_id, $amount);
     mkt_chat_system_message($order_id, 'Арбитраж завершён. Средства переведены продавцу.');
     mkt_log('arbitration_release', $seller_id, 'Выплата по арбитражу', ['order_id' => $order_id, 'amount' => $seller_gets]);
 }

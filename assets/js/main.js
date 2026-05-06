@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     var recentList = document.getElementById('recent-orders-list');
     if (recentList) {
-        mktRest('orders?page=1', 'GET', null, function(data) {
+        mktRest('orders?page=1&mode=buyer', 'GET', null, function(data) {
             if (!data.items || !data.items.length) {
                 recentList.innerHTML = '<div class="orders-empty">Заказов пока нет</div>';
                 return;
@@ -107,12 +107,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
     var ordersList = document.getElementById('orders-list');
     if (ordersList) {
-        mktRest('orders', 'GET', null, function(data) {
+        mktRest('orders?mode=buyer', 'GET', null, function(data) {
             if (!data.items || !data.items.length) {
                 ordersList.innerHTML = '<div class="orders-empty">Заказов пока нет</div>';
                 return;
             }
             ordersList.innerHTML = renderOrdersTable(data.items);
+        });
+    }
+
+    var salesList = document.getElementById('sales-list');
+    if (salesList) {
+        mktRest('orders?mode=seller', 'GET', null, function(data) {
+            if (!data.items || !data.items.length) {
+                salesList.innerHTML = '<div class="orders-empty">Продаж пока нет</div>';
+                return;
+            }
+            salesList.innerHTML = renderOrdersTable(data.items);
         });
     }
 

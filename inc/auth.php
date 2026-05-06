@@ -18,7 +18,6 @@ function mkt_ajax_register(): void {
 
     $email    = sanitize_email($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
-    $role     = sanitize_text_field($_POST['role'] ?? '');
     $invite   = strtoupper(sanitize_text_field($_POST['invite'] ?? ''));
     $captcha  = sanitize_text_field($_POST['captcha'] ?? '');
     $name     = sanitize_text_field($_POST['name'] ?? '');
@@ -28,9 +27,6 @@ function mkt_ajax_register(): void {
     }
     if (strlen($password) < 6) {
         wp_send_json_error(['message' => 'Пароль должен быть не менее 6 символов.']);
-    }
-    if (!in_array($role, ['buyer', 'seller'])) {
-        wp_send_json_error(['message' => 'Выберите роль.']);
     }
     if (!mkt_verify_recaptcha($captcha)) {
         wp_send_json_error(['message' => 'Пройдите проверку reCAPTCHA.']);
@@ -57,13 +53,13 @@ function mkt_ajax_register(): void {
     }
 
     $u = new WP_User($user_id);
-    $u->set_role($role);
+    $u->set_role('buyer');
 
     if ($name) {
         wp_update_user(['ID' => $user_id, 'display_name' => $name]);
     }
 
-    update_field('marketplace_role', $role, "user_{$user_id}");
+    update_field('marketplace_role', 'buyer', "user_{$user_id}");
     update_field('balance', 0, "user_{$user_id}");
     update_field('hold_balance', 0, "user_{$user_id}");
 

@@ -79,7 +79,8 @@ function mkt_get_system_option(string $key, $default = null) {
 }
 
 function mkt_commission_rate(): float {
-    return (float) mkt_get_system_option('system_commission', 10) / 100;
+    // 12% hardcoded: 10% seller chain + 1% buyer inviter + 1% platform profit
+    return 0.12;
 }
 
 function mkt_format_price(float $amount): string {

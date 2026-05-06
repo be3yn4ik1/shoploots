@@ -13,7 +13,7 @@ $hold      = mkt_get_hold($user_id);
 $ref_code  = get_field('ref_code', "user_{$user_id}") ?: '';
 $avatar    = mkt_get_avatar_url($user_id);
 $card          = get_field('withdrawal_card', "user_{$user_id}") ?: '';
-$seller_rating = $role === 'seller' ? mkt_get_seller_rating($user_id) : ['count' => 0, 'avg' => 0];
+$seller_rating = mkt_get_seller_rating($user_id);
 
 get_header();
 ?>
@@ -51,15 +51,17 @@ get_header();
                 <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                 Обзор
             </a>
-            <?php if ($role === 'seller'): ?>
             <a href="#" class="dash-nav-item" data-section="products">
                 <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
                 Мои товары
             </a>
-            <?php endif; ?>
             <a href="#" class="dash-nav-item" data-section="orders">
                 <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                <?= $role === 'seller' ? 'Продажи' : 'Покупки' ?>
+                Покупки
+            </a>
+            <a href="#" class="dash-nav-item" data-section="sales">
+                <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                Продажи
             </a>
             <a href="#" class="dash-nav-item" data-section="balance">
                 <svg viewBox="0 0 24 24" width="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
@@ -94,27 +96,24 @@ get_header();
                         <div class="stat-label">Баланс</div>
                     </div>
                 </div>
-                <?php if ($role === 'seller'): ?>
-                <div class="stat-card" id="stat-sales">
-                    <div class="stat-info">
-                        <div class="stat-val" data-stat="total_sales">—</div>
-                        <div class="stat-label">Всего продаж</div>
-                    </div>
-                </div>
-                <div class="stat-card" id="stat-earned">
-                    <div class="stat-info">
-                        <div class="stat-val" data-stat="total_earned">—</div>
-                        <div class="stat-label">Всего заработано</div>
-                    </div>
-                </div>
-                <?php else: ?>
                 <div class="stat-card">
                     <div class="stat-info">
-                        <div class="stat-val" data-stat="total_orders">—</div>
+                        <div class="stat-val" data-stat="total_purchases">—</div>
                         <div class="stat-label">Покупок</div>
                     </div>
                 </div>
-                <?php endif; ?>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <div class="stat-val" data-stat="total_sales">—</div>
+                        <div class="stat-label">Продаж</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <div class="stat-val" data-stat="total_earned">—</div>
+                        <div class="stat-label">Заработано</div>
+                    </div>
+                </div>
                 <div class="stat-card">
                     <div class="stat-info">
                         <div class="stat-val"><?= esc_html($ref_code) ?></div>
@@ -127,12 +126,11 @@ get_header();
             </div>
 
             <div class="recent-orders-wrap">
-                <h3>Последние <?= $role === 'seller' ? 'продажи' : 'покупки' ?></h3>
+                <h3>Последние покупки</h3>
                 <div id="recent-orders-list"><div class="loader-sm"></div></div>
             </div>
         </section>
 
-        <?php if ($role === 'seller'): ?>
         <section class="dash-section" id="section-products">
             <div class="section-header">
                 <h2 class="section-title">Мои товары</h2>
@@ -140,11 +138,15 @@ get_header();
             </div>
             <div id="my-products-list"><div class="loader-sm"></div></div>
         </section>
-        <?php endif; ?>
 
         <section class="dash-section" id="section-orders">
-            <h2 class="section-title"><?= $role === 'seller' ? 'История продаж' : 'История покупок' ?></h2>
+            <h2 class="section-title">История покупок</h2>
             <div id="orders-list"><div class="loader-sm"></div></div>
+        </section>
+
+        <section class="dash-section" id="section-sales">
+            <h2 class="section-title">История продаж</h2>
+            <div id="sales-list"><div class="loader-sm"></div></div>
         </section>
 
         <section class="dash-section" id="section-balance">
@@ -166,17 +168,21 @@ get_header();
                 <div class="ref-levels">
                     <h4>Условия программы</h4>
                     <?php
-                    $levels = [1 => 5, 2 => 1, 3 => 1, 4 => 1, 5 => 1];
-                    foreach ($levels as $lvl => $pct):
-                        $real_pct = mkt_get_system_option("ref_l{$lvl}", $pct);
+                    $levels = [
+                        ['label' => 'Продавец — 1 уровень', 'pct' => 5],
+                        ['label' => 'Продавец — 2 уровень', 'pct' => 3],
+                        ['label' => 'Продавец — 3 уровень', 'pct' => 2],
+                        ['label' => 'Покупатель — 1 уровень', 'pct' => 1],
+                    ];
+                    foreach ($levels as $lvl):
                     ?>
                     <div class="ref-level-row">
-                        <span class="ref-level-num">Уровень <?= $lvl ?></span>
-                        <div class="ref-level-bar"><div style="width:<?= min(100, $real_pct * 10) ?>%"></div></div>
-                        <span class="ref-level-pct"><?= $real_pct ?>%</span>
+                        <span class="ref-level-num"><?= esc_html($lvl['label']) ?></span>
+                        <div class="ref-level-bar"><div style="width:<?= min(100, $lvl['pct'] * 10) ?>%"></div></div>
+                        <span class="ref-level-pct"><?= $lvl['pct'] ?>%</span>
                     </div>
                     <?php endforeach; ?>
-                    <p class="ref-note">+ 1% от суммы покупок реферала начисляется владельцу его инвайт-кода</p>
+                    <p class="ref-note">Со стороны продавца: 5%+3%+2% по цепочке. Со стороны покупателя: 1% тому, кто его пригласил.</p>
                 </div>
             </div>
         </section>
@@ -265,7 +271,6 @@ get_header();
     </div>
 </div>
 
-<?php if ($role === 'seller'): ?>
 <div class="modal-overlay" id="modal-create-product">
     <div class="modal-box modal-lg">
         <div class="modal-header">
@@ -340,9 +345,7 @@ get_header();
         </div>
     </div>
 </div>
-<?php endif; ?>
 
-<?php if ($role === 'seller'): ?>
 <div class="modal-overlay" id="modal-edit-product">
     <div class="modal-box modal-lg">
         <div class="modal-header">
@@ -398,7 +401,6 @@ get_header();
         </div>
     </div>
 </div>
-<?php endif; ?>
 
 <div class="modal-overlay" id="modal-auto-key">
     <div class="modal-box">

@@ -171,9 +171,6 @@ function mkt_rest_get_my_products(WP_REST_Request $req): WP_REST_Response {
 
 function mkt_rest_create_product(WP_REST_Request $req): WP_REST_Response {
     $user_id = get_current_user_id();
-    if (!mkt_is_seller($user_id)) {
-        return new WP_REST_Response(['error' => 'Только продавцы могут создавать товары.'], 403);
-    }
 
     $title    = sanitize_text_field($req->get_param('title') ?? '');
     $price    = (float) ($req->get_param('price') ?? 0);
@@ -288,10 +285,9 @@ function mkt_rest_delete_product(WP_REST_Request $req): WP_REST_Response {
 }
 
 function mkt_rest_get_orders(WP_REST_Request $req): WP_REST_Response {
-    $user_id = get_current_user_id();
-    $role    = mkt_get_role($user_id);
-
-    $meta_key = $role === 'seller' ? 'seller_id' : 'buyer_id';
+    $user_id  = get_current_user_id();
+    $mode     = sanitize_text_field($req->get_param('mode') ?? 'buyer');
+    $meta_key = $mode === 'seller' ? 'seller_id' : 'buyer_id';
     $query    = new WP_Query([
         'post_type'      => 'orders',
         'post_status'    => 'publish',
@@ -364,39 +360,36 @@ function mkt_rest_get_order(WP_REST_Request $req): WP_REST_Response {
 
 function mkt_rest_get_stats(WP_REST_Request $req): WP_REST_Response {
     $user_id = get_current_user_id();
-    $role    = mkt_get_role($user_id);
     $balance = mkt_get_balance($user_id);
     $hold    = mkt_get_hold($user_id);
 
-    $data = ['balance' => $balance, 'hold' => $hold, 'role' => $role];
+    $data = ['balance' => $balance, 'hold' => $hold, 'role' => mkt_get_role($user_id)];
 
-    if ($role === 'seller') {
-        $orders = new WP_Query([
-            'post_type'   => 'orders',
-            'post_status' => 'publish',
-            'meta_query'  => [
-                ['key' => 'seller_id',    'value' => $user_id],
-                ['key' => 'order_status', 'value' => 'completed'],
-            ],
-            'posts_per_page' => -1,
-            'fields'         => 'ids',
-        ]);
-        $total_earned = 0;
-        foreach ($orders->posts as $oid) {
-            $total_earned += (float) get_field('order_amount', $oid) * (1 - mkt_commission_rate());
-        }
-        $data['total_sales']  = $orders->found_posts;
-        $data['total_earned'] = round($total_earned, 2);
-    } else {
-        $orders = new WP_Query([
-            'post_type'   => 'orders',
-            'post_status' => 'publish',
-            'meta_query'  => [['key' => 'buyer_id', 'value' => $user_id]],
-            'posts_per_page' => -1,
-            'fields'         => 'ids',
-        ]);
-        $data['total_orders'] = $orders->found_posts;
+    $purchases = new WP_Query([
+        'post_type'      => 'orders',
+        'post_status'    => 'publish',
+        'meta_query'     => [['key' => 'buyer_id', 'value' => $user_id]],
+        'posts_per_page' => -1,
+        'fields'         => 'ids',
+    ]);
+    $data['total_purchases'] = $purchases->found_posts;
+
+    $sales = new WP_Query([
+        'post_type'      => 'orders',
+        'post_status'    => 'publish',
+        'meta_query'     => [
+            ['key' => 'seller_id',    'value' => $user_id],
+            ['key' => 'order_status', 'value' => 'completed'],
+        ],
+        'posts_per_page' => -1,
+        'fields'         => 'ids',
+    ]);
+    $total_earned = 0;
+    foreach ($sales->posts as $oid) {
+        $total_earned += (float) get_field('order_amount', $oid) * (1 - mkt_commission_rate());
     }
+    $data['total_sales']  = $sales->found_posts;
+    $data['total_earned'] = round($total_earned, 2);
 
     global $wpdb;
     $data['ref_count'] = (int) $wpdb->get_var($wpdb->prepare(
@@ -629,10 +622,7 @@ function mkt_ajax_create_product(): void {
     check_ajax_referer('marketplace_nonce', 'nonce');
     if (!is_user_logged_in()) wp_send_json_error(['message' => 'Не авторизован.']);
 
-    $user_id  = get_current_user_id();
-    if (!mkt_is_seller($user_id)) {
-        wp_send_json_error(['message' => 'Только продавцы могут создавать товары.']);
-    }
+    $user_id = get_current_user_id();
 
     $title      = sanitize_text_field($_POST['title']       ?? '');
     $price      = (float) ($_POST['price']                  ?? 0);

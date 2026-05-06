@@ -63,25 +63,6 @@ $rc_key = mkt_get_system_option('recaptcha_site_key', '');
                     <span class="invite-status" id="invite-status"></span>
                 </div>
             </div>
-            <div class="form-group">
-                <label>Роль</label>
-                <div class="role-switcher">
-                    <label class="role-option">
-                        <input type="radio" name="role" value="buyer" checked>
-                        <span class="role-btn">
-                            <svg viewBox="0 0 24 24" width="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-                            Покупатель
-                        </span>
-                    </label>
-                    <label class="role-option">
-                        <input type="radio" name="role" value="seller">
-                        <span class="role-btn">
-                            <svg viewBox="0 0 24 24" width="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-                            Продавец
-                        </span>
-                    </label>
-                </div>
-            </div>
             <?php if ($rc_key): ?>
             <div class="form-group">
                 <div class="g-recaptcha" data-sitekey="<?= esc_attr($rc_key) ?>"></div>

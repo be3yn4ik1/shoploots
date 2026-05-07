@@ -16,7 +16,7 @@ add_action('admin_menu', function () {
 add_action('wp_dashboard_setup', function () {
     wp_add_dashboard_widget(
         'mkt_referrals_widget',
-        '🔗 Реферальные выплаты',
+        'Реферальные выплаты',
         'mkt_dashboard_referrals_widget'
     );
 });
@@ -91,10 +91,10 @@ function mkt_dashboard_referrals_widget(): void {
 }
 
 function mkt_referral_level_label(float $pct): array {
-    if ($pct >= 4.5) return ['label' => '🔵 Продавец L1 (5%)',  'style' => 'background:#e3f1ff;color:#0055cc;padding:2px 8px;border-radius:12px;font-size:.75rem;font-weight:700'];
-    if ($pct >= 2.5) return ['label' => '🟣 Продавец L2 (3%)',  'style' => 'background:#f3e5f5;color:#6a1b9a;padding:2px 8px;border-radius:12px;font-size:.75rem;font-weight:700'];
-    if ($pct >= 1.5) return ['label' => '🟠 Продавец L3 (2%)',  'style' => 'background:#fff3e0;color:#e65100;padding:2px 8px;border-radius:12px;font-size:.75rem;font-weight:700'];
-    return             ['label' => '🟢 Покупатель L1 (1%)', 'style' => 'background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:12px;font-size:.75rem;font-weight:700'];
+    if ($pct >= 4.5) return ['label' => 'Продавец L1 (5%)',  'style' => 'background:#e3f1ff;color:#0055cc;padding:2px 8px;border-radius:12px;font-size:.75rem;font-weight:700'];
+    if ($pct >= 2.5) return ['label' => 'Продавец L2 (3%)',  'style' => 'background:#f3e5f5;color:#6a1b9a;padding:2px 8px;border-radius:12px;font-size:.75rem;font-weight:700'];
+    if ($pct >= 1.5) return ['label' => 'Продавец L3 (2%)',  'style' => 'background:#fff3e0;color:#e65100;padding:2px 8px;border-radius:12px;font-size:.75rem;font-weight:700'];
+    return             ['label' => 'Покупатель L1 (1%)', 'style' => 'background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:12px;font-size:.75rem;font-weight:700'];
 }
 
 function mkt_admin_referrals_page(): void {
@@ -102,7 +102,7 @@ function mkt_admin_referrals_page(): void {
     $table = $wpdb->prefix . 'mkt_logs';
     ?>
     <div class="wrap">
-        <h1>🔗 Реферальная система</h1>
+        <h1>Реферальная система</h1>
 
         <!-- Схема начислений -->
         <div style="background:#fff;border:1px solid #ddd;border-radius:10px;padding:24px;margin-bottom:24px">
@@ -207,12 +207,14 @@ function mkt_admin_referrals_page(): void {
                     $order_id   = (int) ($ed['order_id'] ?? 0);
                     $sale_amount = (float) ($ed['amount'] ?? 0);
                     if (!$order_id) continue;
+                    if (!get_post($order_id)) continue;
 
                     $buyer_id  = (int) get_field('buyer_id',  $order_id);
                     $seller_id = (int) get_field('seller_id', $order_id);
                     $product_id = (int) get_field('offer_id', $order_id);
                     $buyer  = get_userdata($buyer_id);
                     $seller = get_userdata($seller_id);
+                    if (!$buyer || !$seller) continue;
                     $product_title = $product_id ? get_the_title($product_id) : '—';
                     $seller_gets   = round($sale_amount * 0.88, 2);
                     $order_url     = home_url("/orders/?id={$order_id}");
@@ -227,17 +229,16 @@ function mkt_admin_referrals_page(): void {
                     )) ?: [];
 
                     $role_map = [
-                        'seller_l1' => ['label' => 'Продавец L1 (5%)',  'color' => '#0077ff', 'bg' => '#e3f1ff', 'icon' => '🔵'],
-                        'seller_l2' => ['label' => 'Продавец L2 (3%)',  'color' => '#6a1b9a', 'bg' => '#f3e5f5', 'icon' => '🟣'],
-                        'seller_l3' => ['label' => 'Продавец L3 (2%)',  'color' => '#e65100', 'bg' => '#fff3e0', 'icon' => '🟠'],
-                        'buyer_l1'  => ['label' => 'Покупатель L1 (1%)', 'color' => '#2e7d32', 'bg' => '#e8f5e9', 'icon' => '🟢'],
+                        'seller_l1' => ['label' => 'Продавец L1 (5%)',   'color' => '#0077ff', 'bg' => '#e3f1ff'],
+                        'seller_l2' => ['label' => 'Продавец L2 (3%)',   'color' => '#6a1b9a', 'bg' => '#f3e5f5'],
+                        'seller_l3' => ['label' => 'Продавец L3 (2%)',   'color' => '#e65100', 'bg' => '#fff3e0'],
+                        'buyer_l1'  => ['label' => 'Покупатель L1 (1%)', 'color' => '#2e7d32', 'bg' => '#e8f5e9'],
                     ];
             ?>
                 <div style="border:1px solid #e8eaed;border-radius:10px;margin-bottom:16px;overflow:hidden">
 
                     <!-- Шапка: покупка -->
                     <div style="background:#f8f9fb;padding:14px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid #e8eaed">
-                        <span style="font-size:1.1rem">🛒</span>
                         <div style="flex:1;min-width:0">
                             <div style="font-weight:700;font-size:.9rem">
                                 <a href="<?= esc_url($order_url) ?>" target="_blank" style="color:#0077ff;text-decoration:none">
@@ -283,7 +284,6 @@ function mkt_admin_referrals_page(): void {
                                 if (!$info) {
                                     $pct  = ($rd['from_amount'] ?? 0) > 0 ? round($r_amount / $rd['from_amount'] * 100, 1) : 0;
                                     $info = mkt_referral_level_label($pct);
-                                    $info['icon'] = '';
                                 }
 
                                 // Кто является источником для этого получателя
@@ -308,13 +308,12 @@ function mkt_admin_referrals_page(): void {
                                 <?php endif; ?>
                             </div>
                             <div style="margin-left:auto;display:flex;align-items:center;gap:10px;flex-shrink:0">
-                                <?php if (isset($info['icon'])): ?>
-                                <span style="background:<?= $info['bg'] ?? '#f0f0f0' ?>;color:<?= $info['color'] ?? '#333' ?>;padding:2px 10px;border-radius:12px;font-size:.75rem;font-weight:700;white-space:nowrap">
-                                    <?= $info['icon'] ?> <?= $info['label'] ?>
-                                </span>
-                                <?php else: ?>
-                                <span style="<?= $info['style'] ?>"><?= $info['label'] ?></span>
-                                <?php endif; ?>
+                                <?php
+                                $badge_style = isset($info['bg'])
+                                    ? 'background:' . $info['bg'] . ';color:' . $info['color'] . ';padding:2px 10px;border-radius:12px;font-size:.75rem;font-weight:700;white-space:nowrap'
+                                    : ($info['style'] ?? '');
+                                ?>
+                                <span style="<?= $badge_style ?>"><?= esc_html($info['label']) ?></span>
                                 <strong style="color:#2e7d32;font-size:1rem;min-width:70px;text-align:right">+<?= number_format($r_amount, 2, '.', ' ') ?> ₽</strong>
                             </div>
                         </div>
@@ -325,11 +324,11 @@ function mkt_admin_referrals_page(): void {
 
                     <!-- Итог -->
                     <div style="background:#fafafa;border-top:1px solid #e8eaed;padding:10px 18px;display:flex;gap:24px;flex-wrap:wrap;font-size:.8rem">
-                        <span>💼 Продавцу: <strong style="color:#222"><?= number_format($seller_gets, 2, '.', ' ') ?> ₽</strong></span>
+                        <span>Продавцу: <strong style="color:#222"><?= number_format($seller_gets, 2, '.', ' ') ?> ₽</strong></span>
                         <?php if (!empty($ref_payouts)): ?>
-                        <span>🔗 Реф. выплаты: <strong style="color:#0077ff"><?= number_format($total_ref ?? 0, 2, '.', ' ') ?> ₽</strong></span>
+                        <span>Реф. выплаты: <strong style="color:#0077ff"><?= number_format($total_ref ?? 0, 2, '.', ' ') ?> ₽</strong></span>
                         <?php endif; ?>
-                        <span style="color:#888">🏦 Платформа (1%): <strong><?= number_format($sale_amount * 0.01, 2, '.', ' ') ?> ₽</strong></span>
+                        <span style="color:#888">Платформа (1%): <strong><?= number_format($sale_amount * 0.01, 2, '.', ' ') ?> ₽</strong></span>
                     </div>
 
                 </div>

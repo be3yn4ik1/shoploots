@@ -1,7 +1,7 @@
 <?php
 defined('ABSPATH') || exit;
 
-foreach (['roles', 'helpers', 'auth', 'api', 'escrow', 'chat', 'referrals', 'payments', 'emails', 'favorites', 'promos'] as $_f) {
+foreach (['roles', 'helpers', 'auth', 'api', 'escrow', 'chat', 'referrals', 'payments', 'emails', 'favorites', 'promos', 'admin-referrals'] as $_f) {
     require_once get_template_directory() . "/inc/{$_f}.php";
 }
 

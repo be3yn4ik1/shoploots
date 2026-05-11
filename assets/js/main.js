@@ -437,6 +437,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (res.success) {
                     mktToast(res.data.message, 'success');
                     document.getElementById('promo-code-input').value = '';
+                    mktModal.close('modal-deposit');
                 } else {
                     mktToast(res.data.message, 'error');
                 }

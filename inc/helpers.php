@@ -70,7 +70,7 @@ function mkt_get_avatar_url(int $user_id): string {
         $src = wp_get_attachment_image_url($img_id, 'thumbnail');
         if ($src) return esc_url($src);
     }
-    return esc_url(get_avatar_url($user_id, ['size' => 80]));
+    return get_template_directory_uri() . '/assets/img/avatar-default.svg';
 }
 
 function mkt_get_system_option(string $key, $default = null) {

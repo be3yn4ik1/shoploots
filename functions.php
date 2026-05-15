@@ -276,6 +276,48 @@ add_filter('post_row_actions', function ($actions, $post) {
     return $actions;
 }, 10, 2);
 
+/* ── Пayout admin columns ────────────────────────────────── */
+add_filter('manage_payout_posts_columns', function ($cols) {
+    $new = ['cb' => $cols['cb'], 'title' => $cols['title']];
+    $new['payout_user_col']   = 'Пользователь';
+    $new['payout_amount_col'] = 'Сумма';
+    $new['payout_card_col']   = 'Карта';
+    $new['payout_status_col'] = 'Статус';
+    $new['date']              = $cols['date'] ?? 'Дата';
+    return $new;
+});
+
+add_action('manage_payout_posts_custom_column', function ($col, $post_id) {
+    if ($col === 'payout_user_col') {
+        $uid = (int) get_post_meta($post_id, '_payout_user_id', true);
+        if ($uid && ($u = get_userdata($uid))) {
+            echo '<a href="' . esc_url(get_edit_user_link($uid)) . '">' . esc_html($u->display_name) . '</a>';
+            echo '<br><span style="color:#999;font-size:.8rem">' . esc_html($u->user_email) . '</span>';
+        } else {
+            echo $uid ? 'ID ' . $uid : '—';
+        }
+    }
+    if ($col === 'payout_amount_col') {
+        $a = (float) get_field('payout_amount', $post_id);
+        echo '<strong>' . number_format($a, 2, '.', ' ') . ' ₽</strong>';
+    }
+    if ($col === 'payout_card_col') {
+        $card = (string) get_field('payout_method', $post_id);
+        echo $card ? esc_html(chunk_split($card, 4, ' ')) : '—';
+    }
+    if ($col === 'payout_status_col') {
+        $status = get_field('payout_status', $post_id) ?: 'pending';
+        $map = [
+            'pending'    => ['В ожидании',  '#f59e0b'],
+            'processing' => ['Отправляется','#3b82f6'],
+            'completed'  => ['Выплачено',   '#22c55e'],
+            'rejected'   => ['Отклонено',   '#ef4444'],
+        ];
+        [$label, $color] = $map[$status] ?? [$status, '#999'];
+        echo '<span style="background:' . $color . ';color:#fff;padding:2px 10px;border-radius:12px;font-size:.78rem;font-weight:600;white-space:nowrap">' . esc_html($label) . '</span>';
+    }
+}, 10, 2);
+
 add_shortcode('mkt_search', function () {
     static $js_rendered = false;
 

@@ -184,24 +184,26 @@ document.addEventListener('DOMContentLoaded', function() {
         loadBalanceLog(1);
     }
 
+    function formatCardValue(val) {
+        return val.replace(/\D/g, '').substring(0, 16).replace(/(.{4})(?=.)/g, '$1 ');
+    }
+
     var cardInput = document.getElementById('payout-card');
     if (cardInput) {
-        function formatCardValue(val) {
-            return val.replace(/\D/g, '').substring(0, 16).replace(/(.{4})(?=.)/g, '$1 ');
-        }
         cardInput.value = formatCardValue(cardInput.value);
         cardInput.addEventListener('input', function() {
             var pos = this.selectionStart;
             var old = this.value;
             this.value = formatCardValue(this.value);
-            // keep cursor roughly in place after formatting
             if (pos < old.length) this.setSelectionRange(pos, pos);
         });
     }
 
     function getCardDigits() {
         var el = document.getElementById('payout-card');
-        return el ? el.value.replace(/\s/g, '') : '';
+        if (!el) return '';
+        el.value = formatCardValue(el.value);
+        return el.value.replace(/\s/g, '');
     }
 
     var saveCardBtn = document.getElementById('save-card-btn');

@@ -182,9 +182,9 @@ get_header();
             <h2 class="section-title">Вывод средств</h2>
             <div class="card payout-card">
                 <div class="form-group">
-                    <label>Реквизиты карты / кошелька</label>
+                    <label>Номер карты РФ</label>
                     <div class="card-save-row">
-                        <input type="text" id="payout-card" placeholder="Номер карты или кошелька" value="<?= esc_attr($card) ?>">
+                        <input type="text" id="payout-card" inputmode="numeric" placeholder="0000 0000 0000 0000" maxlength="19" value="<?= esc_attr($card) ?>">
                         <button class="btn-secondary" id="save-card-btn">Сохранить</button>
                     </div>
                 </div>

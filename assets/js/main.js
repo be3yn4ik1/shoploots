@@ -184,11 +184,31 @@ document.addEventListener('DOMContentLoaded', function() {
         loadBalanceLog(1);
     }
 
+    var cardInput = document.getElementById('payout-card');
+    if (cardInput) {
+        function formatCardValue(val) {
+            return val.replace(/\D/g, '').substring(0, 16).replace(/(.{4})(?=.)/g, '$1 ');
+        }
+        cardInput.value = formatCardValue(cardInput.value);
+        cardInput.addEventListener('input', function() {
+            var pos = this.selectionStart;
+            var old = this.value;
+            this.value = formatCardValue(this.value);
+            // keep cursor roughly in place after formatting
+            if (pos < old.length) this.setSelectionRange(pos, pos);
+        });
+    }
+
+    function getCardDigits() {
+        var el = document.getElementById('payout-card');
+        return el ? el.value.replace(/\s/g, '') : '';
+    }
+
     var saveCardBtn = document.getElementById('save-card-btn');
     if (saveCardBtn) {
         saveCardBtn.addEventListener('click', function() {
-            var card = document.getElementById('payout-card').value.trim();
-            if (!card) { mktToast('Введите реквизиты.', 'error'); return; }
+            var card = getCardDigits();
+            if (card.length !== 16) { mktToast('Введите полный 16-значный номер карты.', 'error'); return; }
             mktSetLoading(saveCardBtn, true);
             mktAjax('mkt_save_card', {card: card}, function(res) {
                 mktSetLoading(saveCardBtn, false);
@@ -202,8 +222,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (payoutBtn) {
         payoutBtn.addEventListener('click', function() {
             var amount = parseFloat(document.getElementById('payout-amount').value || 0);
-            var card   = document.getElementById('payout-card').value.trim();
+            var card   = getCardDigits();
             if (!amount) { mktToast('Введите сумму.', 'error'); return; }
+            if (card.length !== 16) { mktToast('Введите корректный 16-значный номер карты РФ.', 'error'); return; }
             mktSetLoading(payoutBtn, true);
             mktAjax('mkt_request_payout', {amount: amount, card: card}, function(res) {
                 mktSetLoading(payoutBtn, false);

@@ -143,8 +143,8 @@ function mkt_fkwallet_api_call(string $endpoint, array $data = []): array {
 function mkt_fkwallet_create_withdrawal(int $payout_id): array {
     $amount  = (float) get_field('payout_amount', $payout_id);
     $account = (string) get_field('payout_method', $payout_id);
-    $ps_id   = (int) mkt_get_system_option('fkw_payment_system_id', 5);
-    $cur_id  = (int) mkt_get_system_option('fkw_currency_id', 1);
+    $ps_id   = 6; // RU_CARD
+    $cur_id  = 1; // RUB
 
     $payload = [
         'amount'            => $amount,

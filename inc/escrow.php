@@ -219,14 +219,14 @@ function mkt_ajax_request_payout(): void {
 
     $user_id  = get_current_user_id();
     $amount   = (float) ($_POST['amount'] ?? 0);
-    $card     = sanitize_text_field($_POST['card'] ?? '');
+    $card     = preg_replace('/\D/', '', sanitize_text_field($_POST['card'] ?? ''));
 
     $min = (float) mkt_get_system_option('min_withdrawal', 100);
     $max = (float) mkt_get_system_option('max_withdrawal', 50000);
 
     if ($amount < $min) wp_send_json_error(['message' => "Минимальная сумма вывода: {$min} ₽"]);
     if ($amount > $max) wp_send_json_error(['message' => "Максимальная сумма вывода: {$max} ₽"]);
-    if (!$card) wp_send_json_error(['message' => 'Укажите реквизиты.']);
+    if (strlen($card) !== 16) wp_send_json_error(['message' => 'Укажите корректный 16-значный номер карты РФ.']);
 
     $balance = mkt_get_balance($user_id);
     if ($balance < $amount) wp_send_json_error(['message' => 'Недостаточно средств.']);

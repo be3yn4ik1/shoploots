@@ -230,8 +230,12 @@ add_action('acf/save_post', function ($post_id) {
 add_action('acf/save_post', function ($post_id) {
     if (get_post_type($post_id) !== 'payout') return;
     $status = get_field('payout_status', $post_id);
-    if ($status === 'completed') {
+    if ($status === 'processing') {
+        mkt_fkwallet_send_payout($post_id);
+    } elseif ($status === 'completed') {
         mkt_process_payout_completion($post_id);
+    } elseif ($status === 'rejected') {
+        mkt_handle_payout_rejection($post_id);
     }
 }, 20);
 
